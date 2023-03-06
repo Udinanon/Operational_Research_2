@@ -1,0 +1,47 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "command": "ls",
+            "label": "list"
+        },
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc-11 build active file",
+            "command": "/usr/bin/gcc-11",
+            "args": [
+                "-fdiagnostics-color=always", // colored errors and diagnostics
+                "-g", // add debug symbols for gdb and others
+                "./src/main.c",
+                "./src/cmd_parser.c",
+                "-Og", // compile for debugging
+                "-Wall", // compiler warnings
+                "-Wextra", // extra warnings
+                "-Wfloat-equal", // warn aganist float comparison
+                "-o", // how to output
+                "./bin/main.out"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "revealProblems": "onProblem",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "detail": "compiler: /usr/bin/gcc-11"
+        }
+    ],
+    "version": "2.0.0"
+}
