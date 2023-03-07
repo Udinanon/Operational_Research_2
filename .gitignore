@@ -54,3 +54,5 @@ dkms.conf
 # Custom
 *.txt
 /CPLEX*/
+/data/
+*.tsp
