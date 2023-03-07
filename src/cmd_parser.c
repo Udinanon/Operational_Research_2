@@ -1,5 +1,3 @@
-#include <argp.h>
-#include <stdlib.h>
 #include "cmd_parser.h"
 
 static int parse_opt(int key, char* arg, struct argp_state* state);
@@ -14,7 +12,7 @@ Parameters parse(int counter, char** args){
 
     struct argp_option options[] = {
         {"tsp-file", 'f', "TSP_FILENAME", 0, "TSPlib file to load"},
-        {"verbosity", 'v', "LEVEL", OPTION_ARG_OPTIONAL, "Level of verbosity in logging. Default to MAX"},
+        {"verbosity", 'v', "LEVEL", OPTION_ARG_OPTIONAL, "Level of verbosity in logging. Default to ALL"},
         {"seed", 's', "SEED", OPTION_ARG_OPTIONAL, "Randomness seed. Default is random"},
         {"n-thread", 'n', "THREADS", OPTION_ARG_OPTIONAL, "Number of threads. Default is 1"},
         {0}
@@ -31,7 +29,7 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
             params->filename = arg;
             break;
         case 'v':
-            params->verbosity = strtol(arg, NULL, 10);
+            params->verbosity = (enum LOG_LEVEL)strtol(arg, NULL, 10);
             break;
         case 's':
             params->seed = strtol(arg, NULL, 10);
@@ -47,5 +45,12 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
 
 static void prepare_params(Parameters* params){
     params->n_threads = 1;
-    params->verbosity = 4;
+    params->verbosity = ALL;
+}
+
+static int check_parms(Parameters* params){
+    if (params->filename == NULL){
+        return -1;
+    }
+    return 0;
 }
