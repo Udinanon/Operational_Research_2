@@ -1,8 +1,10 @@
 #ifndef TSP_PARSER_H
-#define TSP_PARSRE_H
+#define TSP_PARSER_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "utility.h"
 
 typedef struct Point{
     double x;
@@ -12,7 +14,6 @@ typedef struct Point{
 
 typedef struct TSP_data{
     int n_dimensions;
-    char* name;
     Point** points;
 } TSP_data;
 
