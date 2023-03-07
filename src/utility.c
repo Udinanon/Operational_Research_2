@@ -1,9 +1,10 @@
 #include "utility.h"
 
 static enum LOG_LEVEL log_level = DEBUG;
+static FILE* log_file = NULL;
 
 // https://tuttlem.github.io/2012/12/08/simple-logging-in-c.html
-void logger(FILE* file, enum LOG_LEVEL level, const char *fmt, ...) {
+void logger(enum LOG_LEVEL level, const char *fmt, ...) {
     if (level > log_level){
         return;
     }
@@ -12,7 +13,7 @@ void logger(FILE* file, enum LOG_LEVEL level, const char *fmt, ...) {
     char datestr[51];
 
     /* determine if we just go to std error */
-    file = (file == NULL) ? stderr : file;
+    FILE* file = (log_file == NULL) ? stderr : log_file;
 
     /* datetime & pid formatting */
     t = time(NULL);
@@ -29,6 +30,16 @@ void logger(FILE* file, enum LOG_LEVEL level, const char *fmt, ...) {
     fprintf(file, "\n");
 }
 
-void setup_logger(enum LOG_LEVEL level){
+void set_logger_level(enum LOG_LEVEL level){
     log_level = level;
+}
+
+int set_logger_file(char* filename){
+    log_file = fopen(filename, "r+");
+    if (log_file == NULL) {  // check for file access,
+        logger(ERROR, "Failed opening log file %s", filename);
+        perror("ERROR: ");
+        return -1;
+    }
+    return 0;
 }
