@@ -3,38 +3,31 @@
 http://www.dei.unipd.it/~fisch/ricop/OR2/
 
 # TODO
-
- - setup git and share with colleagues 
- - reader for TSPlib
-   - DIMENSIONS: #nodes
-   - then the nodes themselves
+## Basic
  - basic plotter with GNUplot
  - ensure Debugging works correctly
  - utilities
-   - logger
-   - make verbosity global info
    - make cmd parser safe if not enough commands are submitted
- 
+## Important
  - install CPLEX
  - read on TSP 
  - read on simplex
+## Extra
  - read on C profilers
-
- - investigare make VS Cmake and other methods to compile more complex software
+ - investigate make vs CMake and other methods to compile more complex software
  - 
 
 # CLI
 either get_opt from the C standard or argp from GNU
-i chose argp
 ## ArgP
-you use it's structure to handle inputs and the use a switch system to make it
-it handles printing, parsing most stuff and things like help and version
+You use its structure to handle inputs and the use a switch system 
+It handles printing, parsing most stuff and things like help and version
 https://girishjoshi.io/post/glibc-argument-parsing-argp/
 https://nongnu.askapache.com/argpbook/step-by-step-into-argp.pdf
 
 # TSPLib
-http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/TSPFAQ.html
 http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
+http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/TSPFAQ.html
 http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
 
 

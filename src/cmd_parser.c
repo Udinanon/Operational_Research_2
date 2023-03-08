@@ -37,7 +37,14 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
         case 'n':
             params->n_threads = strtol(arg, NULL, 10);
             break;
+        case ARGP_KEY_END:
+            // Not enough arguments. if your program expects exactly one argument.
+            if (check_parms(params) == -1)
+                logger(ERROR, "Needed parameters not set");
+                argp_usage(state);
+            break;
         default:
+            logger(WARN, "Unrecognized argument %s=%s", key, arg);
             return ARGP_ERR_UNKNOWN;
   }
   return 0;
