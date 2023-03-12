@@ -18,6 +18,7 @@
                 "./src/utility.c",
                 "./src/tsp_data.c",
                 "-Og", // compile for debugging
+                "-lm", // link math library
                 "-Wall", // compiler warnings
                 "-Wextra", // extra warnings
                 "-Wfloat-equal", // warn aganist float comparison

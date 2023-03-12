@@ -37,7 +37,12 @@ void parse_file(const char* filename, TSP_data* data) {
                 logger(INFO, "PROBLEM COMMENT: %s", strtok(NULL, ":"));
             }
             if (compare_string(label, "TYPE")) {
-                logger(INFO, "PROBLEM TYPE: %s", strtok(NULL, ":"));
+                char* type = strtok(NULL, ":");
+                logger(INFO, "PROBLEM TYPE: %s", type);
+                if (compare_string(type, "TSP")){
+                    continue;
+                }
+                logger(ERROR, "Type of file %s does not match expected TSP", type);
             }
             if (compare_string(label, "DIMENSION")) {
                 int dimensions = strtol(strtok(NULL, ":"), NULL, 10);
@@ -46,7 +51,12 @@ void parse_file(const char* filename, TSP_data* data) {
                 allocate_points(data);
             }
             if (compare_string(label, "EDGE_WEIGHT_TYPE")) {
-                logger(DEBUG, "PROBLEM EDGE_WEIGHT_TYPE: %s", strtok(NULL, ":"));
+                char* type = strtok(NULL, ":");
+                logger(DEBUG, "PROBLEM EDGE_WEIGHT_TYPE: %s", type);
+                if (compare_string(type, "EUC_2D")) {
+                    logger(FATAL, "Type of edge weight %s is not supported", type);
+                    exit(EXIT_FAILURE);
+                }
             }
             if (compare_string(label, "NODE_COORD_SECTION")) {
                 logger(INFO, "REACHED NODE_COORD_SECTION\n");
