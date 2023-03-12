@@ -2,8 +2,9 @@
 
 static int parse_opt(int key, char* arg, struct argp_state* state);
 static void prepare_params(Parameters*);
+static int check_parms(Parameters* params);
 
-Parameters parse(int counter, char** args){
+Parameters parse(int counter, char** args) {
     Parameters params;
     prepare_params(&params);
 
@@ -13,10 +14,9 @@ Parameters parse(int counter, char** args){
     struct argp_option options[] = {
         {"tsp-file", 'f', "TSP_FILENAME", 0, "TSPlib file to load"},
         {"verbosity", 'v', "LEVEL", OPTION_ARG_OPTIONAL, "Level of verbosity in logging. Default to ALL"},
-        {"seed", 's', "SEED", OPTION_ARG_OPTIONAL, "Randomness seed. Default is random"},
+        {"seed", 's', "SEED", OPTION_ARG_OPTIONAL, "Randomness seed. Default is UNIX Time"},
         {"n-thread", 'n', "THREADS", OPTION_ARG_OPTIONAL, "Number of threads. Default is 1"},
-        {0}
-    };
+        {0}};
     struct argp argp = {options, parse_opt};
     argp_parse(&argp, counter, args, 0, 0, &params);
     return params;
@@ -39,12 +39,13 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
             break;
         case ARGP_KEY_END:
             // Not enough arguments. if your program expects exactly one argument.
-            if (check_parms(params) == -1)
+            if (check_parms(params) == -1){
                 logger(ERROR, "Needed parameters not set");
                 argp_usage(state);
+            }
             break;
         default:
-            logger(WARN, "Unrecognized argument %s=%s", key, arg);
+            logger(WARN, "Unrecognized argument");
             return ARGP_ERR_UNKNOWN;
   }
   return 0;
@@ -53,6 +54,7 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
 static void prepare_params(Parameters* params){
     params->n_threads = 1;
     params->verbosity = ALL;
+    params->seed = time(0);  // Get the system time
 }
 
 static int check_parms(Parameters* params){

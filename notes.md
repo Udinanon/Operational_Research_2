@@ -4,15 +4,20 @@ http://www.dei.unipd.it/~fisch/ricop/OR2/
 
 # TODO
 ## Basic
- - basic plotter with GNUplot
- - utilities
-   - make cmd parser safe if not enough commands are submitted
+ - create python venv 
+ - basic plotter in matplotlib 
+ - 
+ - implement NN (mandatory)
+ - 
+ - learn basics of C randomness 
+ - implement NN random (mandatory) 
+ - implement MinMileage (mandatory for 30)
 ## Important
  - install CPLEX
- - read on TSP 
- - read on simplex
 ## Extra
  - read on C profilers
+ - read on C advanced debugging
+ - 
  - investigate make vs CMake and other methods to compile more complex software
  - 
 
