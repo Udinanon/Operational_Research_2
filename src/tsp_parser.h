@@ -4,18 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "tps_data.h"
 #include "utility.h"
 
-typedef struct Point{
-    double x;
-    double y;
-    int index;
-} Point;
+void parse_file(const char* , TSP_data* );
 
-typedef struct TSP_data{
-    int n_dimensions;
-    Point* points;
-} TSP_data;
-
-TSP_data parse_file(char* filename);
 #endif

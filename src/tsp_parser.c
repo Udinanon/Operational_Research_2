@@ -2,8 +2,7 @@
 
 static int compare_string(const char* s1, const char* s2);
 
-TSP_data parse_file(char* filename) {
-
+void parse_file(const char* filename, TSP_data* data) {
     FILE* fp;  // open file
     logger(INFO, "Opening file %s", filename);
     if ((fp = fopen(filename, "r+")) == NULL) {  // check for file access,
@@ -18,10 +17,6 @@ TSP_data parse_file(char* filename) {
     int line_count = -1;
     int line_size = 0;
 
-    TSP_data tsp_data = {
-        -1, // n_dims
-        NULL  // points
-    };
     int data_section = 0;
     char* label = NULL;
     int data_counter = 0;
@@ -47,16 +42,16 @@ TSP_data parse_file(char* filename) {
             if (compare_string(label, "DIMENSION")) {
                 int dimensions = strtol(strtok(NULL, ":"), NULL, 10);
                 logger(INFO, "PROBLEM DIMENSION: %d\n", dimensions);
-                tsp_data.n_dimensions = dimensions;
-                tsp_data.points = (Point*)malloc(sizeof(Point) * dimensions);
+                data->n_dimensions = dimensions;
+                allocate_points(data);
             }
             if (compare_string(label, "EDGE_WEIGHT_TYPE")) {
                 logger(DEBUG, "PROBLEM EDGE_WEIGHT_TYPE: %s", strtok(NULL, ":"));
             }
             if (compare_string(label, "NODE_COORD_SECTION")) {
                 logger(INFO, "REACHED NODE_COORD_SECTION\n");
-                if (tsp_data.n_dimensions == -1){
-                    logger(ERROR, "Reached Coords section, never read dimensions. FIle corrupt");
+                if (data->n_dimensions == -1){
+                    logger(FATAL, "Reached Coords section, never read dimensions. File corrupt");
                     exit(EXIT_FAILURE);
                 }
                 data_section = 1;
@@ -66,7 +61,7 @@ TSP_data parse_file(char* filename) {
         if (data_section == 1){
             char* section = strtok(line_buf, " ");
             if (compare_string(section, "EOF")){
-                logger(INFO, "Reached EOF mark. Counter %d dimension %d", data_counter, tsp_data.n_dimensions);
+                logger(INFO, "Reached EOF mark. Counter %d dimension %d", data_counter, data->n_dimensions);
                 break;
             }
             long index = strtol(section, NULL, 10);
@@ -75,21 +70,17 @@ TSP_data parse_file(char* filename) {
             if (index - data_counter != 1){
                 logger(WARN, "MISALIGNMENT IN DATA: INDEX %d COUNTER %d", index, data_counter);
             }
-            //tsp_data.points[data_counter] = malloc(sizeof(Point));
-            Point* point = &tsp_data.points[data_counter];
+            //data->points[data_counter] = malloc(sizeof(Point));
+            Point* point = &data->points[data_counter];
             point->index = index;
             point->x = x;
             point->y = y;
             data_counter++;
             logger(ALL, "STORED DATA: %d %f %f", point->index, point->x, point->y);
         }
-
-        // prepare next line
-
     }
     fclose(fp);
     free(line_buf);
-    return tsp_data;
 }
 
 static int compare_string(const char* s1,const  char* s2){

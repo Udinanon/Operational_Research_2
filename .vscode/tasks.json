@@ -16,6 +16,7 @@
                 "./src/cmd_parser.c",
                 "./src/tsp_parser.c",
                 "./src/utility.c",
+                "./src/tsp_data.c",
                 "-Og", // compile for debugging
                 "-Wall", // compiler warnings
                 "-Wextra", // extra warnings
