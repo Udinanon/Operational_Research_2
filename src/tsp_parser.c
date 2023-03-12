@@ -48,7 +48,7 @@ TSP_data parse_file(char* filename) {
                 int dimensions = strtol(strtok(NULL, ":"), NULL, 10);
                 logger(INFO, "PROBLEM DIMENSION: %d\n", dimensions);
                 tsp_data.n_dimensions = dimensions;
-                tsp_data.points = malloc(sizeof(Point*) * dimensions);
+                tsp_data.points = (Point*)malloc(sizeof(Point) * dimensions);
             }
             if (compare_string(label, "EDGE_WEIGHT_TYPE")) {
                 logger(DEBUG, "PROBLEM EDGE_WEIGHT_TYPE: %s", strtok(NULL, ":"));
@@ -75,12 +75,13 @@ TSP_data parse_file(char* filename) {
             if (index - data_counter != 1){
                 logger(WARN, "MISALIGNMENT IN DATA: INDEX %d COUNTER %d", index, data_counter);
             }
-            tsp_data.points[data_counter] = malloc(sizeof(Point));
-            Point* point = tsp_data.points[data_counter];
+            //tsp_data.points[data_counter] = malloc(sizeof(Point));
+            Point* point = &tsp_data.points[data_counter];
             point->index = index;
             point->x = x;
             point->y = y;
             data_counter++;
+            logger(ALL, "STORED DATA: %d %f %f", point->index, point->x, point->y);
         }
 
         // prepare next line

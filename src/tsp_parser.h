@@ -14,7 +14,7 @@ typedef struct Point{
 
 typedef struct TSP_data{
     int n_dimensions;
-    Point** points;
+    Point* points;
 } TSP_data;
 
 TSP_data parse_file(char* filename);

@@ -5,7 +5,6 @@ http://www.dei.unipd.it/~fisch/ricop/OR2/
 # TODO
 ## Basic
  - basic plotter with GNUplot
- - ensure Debugging works correctly
  - utilities
    - make cmd parser safe if not enough commands are submitted
 ## Important
@@ -16,6 +15,9 @@ http://www.dei.unipd.it/~fisch/ricop/OR2/
  - read on C profilers
  - investigate make vs CMake and other methods to compile more complex software
  - 
+
+# Misc
+odd behavior when printing floats: if called with "%d" the result is wrong, but no error is raised. Maybe a compiler flag?
 
 # CLI
 either get_opt from the C standard or argp from GNU
