@@ -11,7 +11,9 @@
             "program": "${workspaceFolder}/bin/main.out",
             "args": [
                 "-f",
-                "./data/a280.tsp"
+                "./data/a280.tsp",
+                "-s",
+                "1"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

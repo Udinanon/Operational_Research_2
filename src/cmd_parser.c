@@ -13,9 +13,9 @@ Parameters parse(int counter, char** args) {
 
     struct argp_option options[] = {
         {"tsp-file", 'f', "TSP_FILENAME", 0, "TSPlib file to load"},
-        {"verbosity", 'v', "LEVEL", OPTION_ARG_OPTIONAL, "Level of verbosity in logging. Default to ALL"},
-        {"seed", 's', "SEED", OPTION_ARG_OPTIONAL, "Randomness seed. Default is UNIX Time"},
-        {"n-thread", 'n', "THREADS", OPTION_ARG_OPTIONAL, "Number of threads. Default is 1"},
+        {"verbosity", 'v', "LEVEL", 0, "Level of verbosity in logging. Default to ALL"},
+        {"seed", 's', "SEED", 0, "Randomness seed. Default is UNIX Time"},
+        {"n-thread", 'n', "THREADS", 0, "Number of threads. Default is 1"},
         {0}};
     struct argp argp = {options, parse_opt};
     argp_parse(&argp, counter, args, 0, 0, &params);
@@ -24,6 +24,7 @@ Parameters parse(int counter, char** args) {
 
 static int parse_opt(int key, char* arg, struct argp_state* state) {
     struct Parameters* params = state->input;
+    printf("%c\n",key);
     switch (key) {
         case 'f':
             params->filename = arg;
@@ -33,6 +34,7 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
             break;
         case 's':
             params->seed = strtol(arg, NULL, 10);
+            logger(DEBUG, "RANDOM SEED: %d", params->seed);
             break;
         case 'n':
             params->n_threads = strtol(arg, NULL, 10);
@@ -45,13 +47,13 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
             }
             break;
         default:
-            logger(WARN, "Unrecognized argument");
             return ARGP_ERR_UNKNOWN;
   }
   return 0;
 }
 
 static void prepare_params(Parameters* params){
+    params->filename = NULL;
     params->n_threads = 1;
     params->verbosity = ALL;
     params->seed = time(0);  // Get the system time
