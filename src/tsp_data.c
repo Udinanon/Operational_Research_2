@@ -168,8 +168,24 @@ TSP_solution* random_NN(TSP_data* data, double prob)
         else{
             double row[n];
             memcpy(row, &data->cost_matrix[index*n], n);
-
-
+            int present = 1;
+            int num;
+            while(present == 1){
+                num = (rand() % n);
+                present = 0;
+                if(num == index) present = 1;
+                else{
+                    for(int i = 0; i < n; i++){
+                        if(already_visited[i] == num){
+                            present = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            cost += row[num];
+            already_visited[j] = num;
+            index= num;
         }
     }
 
