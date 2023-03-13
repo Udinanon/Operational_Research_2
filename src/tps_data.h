@@ -32,4 +32,6 @@ void destroy_tsp_data(TSP_data* ); // deallocate entire structure
 
 TSP_solution* NN(TSP_data* ); //Nearest Neighbor
 
+TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
+
 #endif

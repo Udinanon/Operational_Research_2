@@ -114,3 +114,60 @@ TSP_solution* NN(TSP_data* data){
     sol->cost = cost;
     return sol;
 }
+
+TSP_solution* random_NN(TSP_data* data, double prob){
+    TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
+    if(sol == NULL){
+        logger(FATAL, "TSP_solution pointer allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
+
+    int n = data->n_dimensions;
+
+    sol->cycle = (Point*)malloc(sizeof(Point) * (n+1));
+    if (sol->cycle == NULL) {
+        logger(FATAL, "TSP_solution cycle allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+
+    Point start = data->points[0];
+    sol->cycle[0] = start;
+    int cost = 0;
+    int index = 0;
+    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
+
+    for (int j = 1; j < n; j++){
+        double row[n];
+        memcpy(row, &data->cost_matrix[index*n], n);
+        int present = 1;
+        int min_pos = 0;
+        while(present== 1){
+            for(int i = 1; i < n; i++){
+                if(row[i] < row[min_pos] && i!=index){
+                    min_pos = i;
+                }
+            }
+            present = 0;
+            for(int i = 0; i < n; i++){
+                if(already_visited[i] == min_pos){
+                    present = 1;
+                    row[min_pos] = DBL_MAX;  //max value for double
+                    min_pos = 0;
+                    break;
+                }
+            }
+        }
+        cost += row[min_pos];
+        already_visited[j] = min_pos;
+        index= min_pos;
+    }
+
+    for(int j = 1; j<n; j++){
+        sol->cycle[j] = data->points[already_visited[j]];
+    }
+    sol->cycle[n] = start;
+    cost+=data->cost_matrix[index*n];
+    sol->cost = cost;
+    return sol;
+}
