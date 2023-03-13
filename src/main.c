@@ -20,5 +20,7 @@ int main(int argc, char** argv) {
 
     logger(DEBUG, "%f", get_random());
 
+    TSP_solution* sol = random_NN(data, 0.1);
+
     return 0;
 }
