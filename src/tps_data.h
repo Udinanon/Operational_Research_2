@@ -18,11 +18,18 @@ typedef struct TSP_data {
   double* cost_matrix;
 } TSP_data;
 
+typedef struct TSP_solution {
+  double cost;
+  Point* cycle;
+} TSP_solution;
+
 TSP_data* init_tsp_data(); // initialize memory segment on stack
 
 void allocate_points(TSP_data* ); // allocate space for points
 void create_cost_matrix(TSP_data* );
 
 void destroy_tsp_data(TSP_data* ); // deallocate entire structure
+
+TSP_solution* NN(TSP_data* ); //Nearest Neighbor
 
 #endif
