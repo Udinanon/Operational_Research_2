@@ -1,7 +1,6 @@
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H
 #include <argp.h>
-#include <stdlib.h>
 #include "utility.h"
 
 typedef struct Parameters {

@@ -43,3 +43,7 @@ int set_logger_file(char* filename){
     }
     return 0;
 }
+
+double get_random(){
+    return (double)((double)rand() / RAND_MAX);
+}
