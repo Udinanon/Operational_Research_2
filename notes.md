@@ -4,9 +4,6 @@ http://www.dei.unipd.it/~fisch/ricop/OR2/
 
 # TODO
 ## Basic
- - create python venv 
- - basic plotter in matplotlib 
- - 
  - implement NN (mandatory)
  - 
  - learn basics of C randomness 
@@ -31,6 +28,13 @@ You use its structure to handle inputs and the use a switch system
 It handles printing, parsing most stuff and things like help and version
 https://girishjoshi.io/post/glibc-argument-parsing-argp/
 https://nongnu.askapache.com/argpbook/step-by-step-into-argp.pdf
+
+# Python
+## Matplotlib
+
+scatter draws points, plot can be used to draw the lines
+https://stackoverflow.com/questions/4971269/how-to-pick-a-new-color-for-each-plotted-line-within-a-figure-in-matplotlib
+
 
 # TSPLib
 http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
