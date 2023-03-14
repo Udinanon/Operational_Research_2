@@ -88,6 +88,7 @@ TSP_solution* NN(TSP_data* data){
 
         double min_cost = DBL_MAX;
         int min_pos = -1;
+        // check of all nodes whcih are available and find min cost one
         for(int i=0; i<n; i++){
             if(already_visited[i] == 0){
                 if (row[i] < min_cost){
@@ -109,8 +110,8 @@ TSP_solution* NN(TSP_data* data){
     return sol;
 }
 
-TSP_solution* random_NN(TSP_data* data, double prob)
-{
+TSP_solution* random_NN(TSP_data* data, double prob){
+    
     TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
     if(sol == NULL){
         logger(FATAL, "TSP_solution pointer allocation failed!");
@@ -126,66 +127,52 @@ TSP_solution* random_NN(TSP_data* data, double prob)
         perror("Error printed by perror");
         exit(EXIT_FAILURE);
     }
+    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
     Point start = data->points[0];
     sol->cycle[0] = start;
-    int cost = 0;
+    already_visited[0] = 1;
+    double cost = 0;
     int index = 0;
-    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
 
     for (int j = 1; j < n; j++){
-        int p = rand();
-        if(p>=prob){
-            double row[n];
-            memcpy(row, &data->cost_matrix[index*n], n);
-            int present = 1;
-            int min_pos = 0;
-            while(present== 1){
-                for(int i = 1; i < n; i++){
-                    if(row[i] < row[min_pos] && i!=index){
-                        min_pos = i;
-                    }
-                }
-                present = 0;
-                for(int i = 0; i < n; i++){
-                    if(already_visited[i] == min_pos){
-                        present = 1;
-                        row[min_pos] = DBL_MAX;  //max value for double
-                        min_pos = 0;
-                        break;
+        double p = get_random();
+        double row[n];
+        memcpy(row, &data->cost_matrix[index * n], n * sizeof(double));  // locally copied matrix row
+        if(p >= prob){
+            double min_cost = DBL_MAX;
+            int min_pos = -1;
+            for (int i = 0; i < n; i++) {
+                if (already_visited[i] == 0) {
+                    if (row[i] < min_cost) {
+                      min_cost = row[i];
+                      min_pos = i;
                     }
                 }
             }
-            cost += row[min_pos];
-            already_visited[j] = min_pos;
-            index= min_pos;
+            cost += min_cost;
+            already_visited[min_pos] = 1;
+            sol->cycle[j] = data->points[min_pos];
+            index = min_pos;
         }
         else{
-            double row[n];
-            memcpy(row, &data->cost_matrix[index*n], n);
-            int present = 1;
-            int num;
-            while(present == 1){
-                num = (rand() % n);
-                present = 0;
-                if(num == index) present = 1;
-                else{
-                    for(int i = 0; i < n; i++){
-                        if(already_visited[i] == num){
-                            present = 1;
-                            break;
-                        }
-                    }
+            int available_nodes[n];
+            int counter = 0;
+            // compile list of available nodes
+            for(int i=0; i<n; i++){ 
+                if (already_visited[i] == 0){
+                    available_nodes[counter] = i;
+                    counter++;
                 }
             }
-            cost += row[num];
-            already_visited[j] = num;
-            index= num;
+            // pick one at random from these
+            int random_node = available_nodes[(int)(get_random() * (counter-1))];
+            cost += row[random_node];
+            already_visited[random_node] = 1;
+            sol->cycle[j] = data->points[random_node];
+            index = random_node;
         }
     }
 
-    for(int j = 1; j<n; j++){
-        sol->cycle[j] = data->points[already_visited[j]];
-    }
     sol->cycle[n] = start;
     cost+=data->cost_matrix[index*n];
     sol->cost = cost;
@@ -200,7 +187,7 @@ void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, c
         perror("Error printed by perror");
         exit(EXIT_FAILURE);
     }
-    logger(DEBUG, "Saving solution to problem %s to filename %s", problem_name, filename);
+    logger(INFO, "Saving solution to problem %s to filename %s", problem_name, filename);
     FILE* f = fopen(filename, "w");
     if (f == NULL) {
         logger(FATAL, "Save solution file write failed!");

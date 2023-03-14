@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "gdb Main -f att48",
+            "name": "gdb Main -f a280 deterministic",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/main.out",
@@ -34,12 +34,13 @@
             ]
         },
         {
-            "name": "TEST:OUT",
+            "name": "gdb Main -f a280 random",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/test.out",
+            "program": "${workspaceFolder}/bin/main.out",
             "args": [
-                "--help"
+                "-f",
+                "./data/a280.tsp",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -58,6 +59,7 @@
                     "ignoreFailures": true
                 }
             ]
-        }
+        },
+        
     ]
 }
