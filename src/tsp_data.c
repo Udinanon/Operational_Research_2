@@ -1,5 +1,4 @@
-#include "tps_data.h"
-#include <float.h>
+#include "tsp_data.h"
 
 TSP_data* init_tsp_data(){
     TSP_data* data = (TSP_data* )malloc(sizeof(TSP_data));
@@ -74,41 +73,36 @@ TSP_solution* NN(TSP_data* data){
         perror("Error printed by perror");
         exit(EXIT_FAILURE);
     }
+
+    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
+    // initial node is always visited
     Point start = data->points[0];
     sol->cycle[0] = start;
-    int cost = 0;
+    already_visited[0] = 1;
+    double cost = 0;
     int index = 0;
-    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
 
     for (int j = 1; j < n; j++){
         double row[n];
-        memcpy(row, &data->cost_matrix[index*n], n);
-        int present = 1;
-        int min_pos = 0;
-        while(present== 1){
-            for(int i = 1; i < n; i++){
-                if(row[i] < row[min_pos] && i!=index){
+        memcpy(row, &data->cost_matrix[index*n], n*sizeof(double)); //locally copied matrix row
+
+        double min_cost = DBL_MAX;
+        int min_pos = -1;
+        for(int i=0; i<n; i++){
+            if(already_visited[i] == 0){
+                if (row[i] < min_cost){
+                    min_cost = row[i];
                     min_pos = i;
                 }
             }
-            present = 0;
-            for(int i = 0; i < n; i++){
-                if(already_visited[i] == min_pos){
-                    present = 1;
-                    row[min_pos] = DBL_MAX;  //max value for double
-                    min_pos = 0;
-                    break;
-                }
-            }
         }
-        cost += row[min_pos];
-        already_visited[j] = min_pos;
-        index= min_pos;
+
+        cost += min_cost;
+        already_visited[min_pos] = 1;
+        sol->cycle[j] = data->points[min_pos];
+        index = min_pos;
     }
 
-    for(int j = 1; j<n; j++){
-        sol->cycle[j] = data->points[already_visited[j]];
-    }
     sol->cycle[n] = start;
     cost+=data->cost_matrix[index*n];
     sol->cost = cost;
@@ -196,4 +190,9 @@ TSP_solution* random_NN(TSP_data* data, double prob)
     cost+=data->cost_matrix[index*n];
     sol->cost = cost;
     return sol;
+}
+
+void save_solution(TSP_solution* solution, char* savename) {
+
+
 }

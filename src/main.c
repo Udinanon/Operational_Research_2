@@ -1,5 +1,5 @@
 #include "cmd_parser.h"
-#include "tps_data.h"
+#include "tsp_data.h"
 #include "tsp_parser.h"
 #include "utility.h"
 
@@ -18,7 +18,10 @@ int main(int argc, char** argv) {
     create_cost_matrix(data);
     logger(DEBUG, "Distance between the two nodes: %f", data->cost_matrix[data->n_dimensions / 2 + ((data->n_dimensions - 2) * data->n_dimensions)]);
 
-    logger(DEBUG, "%f", get_random());
+    TSP_solution* solution = NN(data);
+    save_solution(solution, "solution");
+    TSP_solution* solution = random_NN(data, 0.1);
+    save_solution(solution, "solution_rand");
 
     return 0;
 }

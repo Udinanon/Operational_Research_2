@@ -1,6 +1,7 @@
 #ifndef TSP_DATA_H
 #define TSP_DATA_H
 
+#include <float.h>
 #include <math.h>
 #include <stdlib.h>
 
@@ -33,5 +34,7 @@ void destroy_tsp_data(TSP_data* ); // deallocate entire structure
 TSP_solution* NN(TSP_data* ); //Nearest Neighbor
 
 TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
+
+void save_solution(TSP_solution* solution, char* savename); // can't havce circular dependency with Utility so it's here
 
 #endif

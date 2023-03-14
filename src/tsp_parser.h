@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tps_data.h"
+#include "tsp_data.h"
 #include "utility.h"
 
 void parse_file(const char* , TSP_data* );
