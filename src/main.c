@@ -23,5 +23,7 @@ int main(int argc, char** argv) {
     TSP_solution* solution = random_NN(data, 0.1);
     save_solution(solution, "solution_rand");
 
+    TSP_solution* sol = random_NN(data, 0.1);
+
     return 0;
 }
