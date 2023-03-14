@@ -3,6 +3,9 @@
 
 #include <float.h>
 #include <math.h>
+#define _GNU_SOURCE // all threee needed for asprintf
+#define __STDC_WANT_LIB_EXT2__ 1  // Define you want TR 24731-2:2010 extensions
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "utility.h"
@@ -35,6 +38,6 @@ TSP_solution* NN(TSP_data* ); //Nearest Neighbor
 
 TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
 
-void save_solution(TSP_solution* solution, char* savename); // can't havce circular dependency with Utility so it's here
+void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename); // can't havce circular dependency with Utility so it's here
 
 #endif

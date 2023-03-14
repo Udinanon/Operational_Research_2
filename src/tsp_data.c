@@ -192,7 +192,29 @@ TSP_solution* random_NN(TSP_data* data, double prob)
     return sol;
 }
 
-void save_solution(TSP_solution* solution, char* savename) {
+void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, char* savename) {
+    char* filename;
+    int size = asprintf(&filename, "./results/%s.txt", savename);
+    if (size == -1) {
+        logger(FATAL, "Filename allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
+    logger(DEBUG, "Saving solution to problem %s to filename %s", problem_name, filename);
+    FILE* f = fopen(filename, "w");
+    if (f == NULL) {
+        logger(FATAL, "Save solution file write failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
 
-
+    fprintf(f, "%s\n", problem_name);
+    for(int i=0; i<data->n_dimensions; i++){
+        Point sol_i = solution->cycle[i];
+        fprintf(f, "%d ", sol_i.index-1);
+    }
+    fprintf(f, "\n");
+    fprintf(f, "%f\n", solution->cost);
+    fclose(f);
+    free(filename);
 }
