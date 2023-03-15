@@ -108,6 +108,7 @@ TSP_solution* NN(TSP_data* data){
     sol->cycle[n] = start;
     cost+=data->cost_matrix[index*n+start_index];
     sol->cost = cost;
+    free(already_visited);
     return sol;
 }
 
@@ -178,6 +179,7 @@ TSP_solution* random_NN(TSP_data* data, double prob){
     sol->cycle[n] = start;
     cost+=data->cost_matrix[index*n+start_index];
     sol->cost = cost;
+    free(already_visited);
     return sol;
 }
 
