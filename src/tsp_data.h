@@ -40,4 +40,6 @@ TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
 
 void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename); // can't havce circular dependency with Utility so it's here
 
+void destroy_solution(TSP_solution* ); // deallocate a solution structure
+
 #endif
