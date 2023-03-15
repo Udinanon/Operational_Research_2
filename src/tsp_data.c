@@ -76,11 +76,12 @@ TSP_solution* NN(TSP_data* data){
 
     int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
     // initial node is always visited
-    Point start = data->points[0];
+    int start_index = (int)(get_random() * (data->n_dimensions-1));
+    Point start = data->points[start_index];
     sol->cycle[0] = start;
-    already_visited[0] = 1;
+    already_visited[start_index] = 1;
     double cost = 0;
-    int index = 0;
+    int index = start_index;
 
     for (int j = 1; j < n; j++){
         double row[n];
@@ -105,7 +106,7 @@ TSP_solution* NN(TSP_data* data){
     }
 
     sol->cycle[n] = start;
-    cost+=data->cost_matrix[index*n];
+    cost+=data->cost_matrix[index*n+start_index];
     sol->cost = cost;
     return sol;
 }
@@ -128,11 +129,12 @@ TSP_solution* random_NN(TSP_data* data, double prob){
         exit(EXIT_FAILURE);
     }
     int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
-    Point start = data->points[0];
+    int start_index = (int)(get_random() * (data->n_dimensions-1));
+    Point start = data->points[start_index];;
     sol->cycle[0] = start;
-    already_visited[0] = 1;
+    already_visited[start_index] = 1;
     double cost = 0;
-    int index = 0;
+    int index = start_index;
 
     for (int j = 1; j < n; j++){
         double p = get_random();
@@ -174,7 +176,7 @@ TSP_solution* random_NN(TSP_data* data, double prob){
     }
 
     sol->cycle[n] = start;
-    cost+=data->cost_matrix[index*n];
+    cost+=data->cost_matrix[index*n+start_index];
     sol->cost = cost;
     return sol;
 }
