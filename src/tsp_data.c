@@ -183,6 +183,39 @@ TSP_solution* random_NN(TSP_data* data, double prob){
     return sol;
 }
 
+TSP_solution* Extra_Mileage(TSP_data* data){
+
+    TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
+    if(sol == NULL){
+        logger(FATAL, "TSP_solution pointer allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
+
+    int n = data->n_dimensions;
+
+    sol->cycle = (Point*)malloc(sizeof(Point) * (n+1));
+    if (sol->cycle == NULL) {
+        logger(FATAL, "TSP_solution cycle allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
+
+    int max = -1;
+    Point A;
+    Point B;
+    for(int i = 0; i < pow(n, 2); i++){
+        if(data->cost_matrix[i] > max){
+            max = data->cost_matrix[i];
+            A = data->points[i/data->n_dimensions];
+            B = data->points[i%data->n_dimensions];
+        }
+    }
+    sol->cycle[0] = A;
+    sol->cycle[1] = B;
+    sol->cycle[2] = A;
+}
+
 void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, char* savename) {
     char* filename;
     int size = asprintf(&filename, "./results/%s.txt", savename);
