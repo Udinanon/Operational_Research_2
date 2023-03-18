@@ -202,18 +202,69 @@ TSP_solution* Extra_Mileage(TSP_data* data){
     }
 
     int max = -1;
-    Point A;
-    Point B;
+    int A;
+    int B;
     for(int i = 0; i < pow(n, 2); i++){
         if(data->cost_matrix[i] > max){
             max = data->cost_matrix[i];
-            A = data->points[i/data->n_dimensions];
-            B = data->points[i%data->n_dimensions];
+            A = i/n;
+            B = i%n;
         }
     }
-    sol->cycle[0] = A;
-    sol->cycle[1] = B;
-    sol->cycle[2] = A;
+
+    int index = 3;
+    int* already_visited = (int*) calloc(n+1, sizeof(int));
+    already_visited[0] = A;
+    already_visited[1] = B;
+    already_visited[2] = A;
+    int cost = data->cost_matrix[A*n+B]*2;
+    while(index != n+1){
+        int available_nodes[n-2];
+        int counter = 0;
+        for(int i=0; i<n; i++){ 
+            int present = 0;
+            for(int j = 0; j<index-1; j++){
+                if (already_visited[j] == i){
+                    present = 1;
+                    break;
+                }
+            }
+            if (present == 0){
+                available_nodes[counter] = i;
+                counter++;
+            }
+        }
+        int min = __INT_MAX__;
+        int second;
+        int middle;
+        for(int i=0; i<index; i++){
+            for (int j = i+1; j<index; j++){    //select the edge i-j
+                int cost_ij= data->cost_matrix[already_visited[i]*n+already_visited[j]];
+                for(int k = 0; k<counter; k++){ //select a non-cycling node
+                    int cost_ik = data->cost_matrix[already_visited[i]*n+available_nodes[k]];
+                    int cost_kj = data->cost_matrix[available_nodes[k]*n+already_visited[j]];
+                    int delta = cost_ik + cost_kj - cost_ij;
+                    if(delta < min){
+                        min = delta;
+                        second = j;
+                        middle = k;
+                    }
+                }
+            }
+        }
+        cost += min;
+        for(int i=index; i>second; i--){
+            already_visited[i] = already_visited[i-1];
+        }
+        already_visited[second] = available_nodes[middle];
+        index++;
+    }
+    for(int i = 0; i<n+1; i++){
+        sol->cycle[i] = data->points[already_visited[i]];
+    }
+    sol->cost = cost;
+    free(already_visited);
+    return sol;
 }
 
 void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, char* savename) {
