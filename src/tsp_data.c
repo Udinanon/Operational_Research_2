@@ -184,6 +184,10 @@ TSP_solution* random_NN(TSP_data* data, double prob){
 }
 
 TSP_solution* Extra_Mileage(TSP_data* data){
+    return Extra_Mileage_partial(data, data->n_dimensions+1);
+}
+
+TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind){
 
     TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
     if(sol == NULL){
@@ -218,7 +222,7 @@ TSP_solution* Extra_Mileage(TSP_data* data){
     already_visited[1] = B;
     already_visited[2] = A;
     int cost = data->cost_matrix[A*n+B]*2;
-    while(index != n+1){
+    while(index != ind){
         int available_nodes[n-2];
         int counter = 0;
         for(int i=0; i<n; i++){ 

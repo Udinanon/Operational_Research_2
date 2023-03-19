@@ -38,7 +38,9 @@ TSP_solution* NN(TSP_data* ); //Nearest Neighbor
 
 TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
 
-TSP_solution* Extra_Mileage(TSP_data* ); //Extra-Mileage
+TSP_solution* Extra_Mileage_partial(TSP_data*, int );
+
+TSP_solution* Extra_Mileage(TSP_data*); //Extra-Mileage
 
 void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename); // can't have circular dependency with Utility so it's here
 

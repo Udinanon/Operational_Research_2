@@ -22,6 +22,14 @@ int main(int argc, char** argv) {
     save_solution(solution, data, params.filename, "solution");
     solution = random_NN(data, 0.1);
     save_solution(solution, data, params.filename, "solution_rand");
+    solution = Extra_Mileage(data);
+    save_solution(solution, data, params.filename, "solution_mileage");
+    solution = Extra_Mileage_partial(data, 4);
+    save_solution(solution, data, params.filename, "solution_mileage_first");
+    solution = Extra_Mileage_partial(data, 5);
+    save_solution(solution, data, params.filename, "solution_mileage_second");
+    solution = Extra_Mileage_partial(data, data->n_dimensions/2);
+    save_solution(solution, data, params.filename, "solution_mileage_partial");
 
     return 0;
 }
