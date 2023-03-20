@@ -58,70 +58,15 @@ void create_cost_matrix(TSP_data* data){
 }
 
 TSP_solution* NN(TSP_data* data){
-    TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
-    if(sol == NULL){
-        logger(FATAL, "TSP_solution pointer allocation failed!");
-        perror("Error printed by perror");
-        exit(EXIT_FAILURE);
-    }
-
-    int n = data->n_dimensions;
-
-    sol->cycle = (Point*)malloc(sizeof(Point) * (n+1));
-    if (sol->cycle == NULL) {
-        logger(FATAL, "TSP_solution cycle allocation failed!");
-        perror("Error printed by perror");
-        exit(EXIT_FAILURE);
-    }
-
-    int* already_visited = (int*) calloc(data->n_dimensions, sizeof(int)); //all values to 0
-    // initial node is always visited
-    int start_index = (int)(get_random() * (data->n_dimensions-1));
-    Point start = data->points[start_index];
-    sol->cycle[0] = start;
-    already_visited[start_index] = 1;
-    double cost = 0;
-    int index = start_index;
-
-    for (int j = 1; j < n; j++){
-        double row[n];
-        memcpy(row, &data->cost_matrix[index*n], n*sizeof(double)); //locally copied matrix row
-
-        double min_cost = DBL_MAX;
-        int min_pos = -1;
-        // check of all nodes whcih are available and find min cost one
-        for(int i=0; i<n; i++){
-            if(already_visited[i] == 0){
-                if (row[i] < min_cost){
-                    min_cost = row[i];
-                    min_pos = i;
-                }
-            }
-        }
-
-        cost += min_cost;
-        already_visited[min_pos] = 1;
-        sol->cycle[j] = data->points[min_pos];
-        index = min_pos;
-    }
-
-    sol->cycle[n] = start;
-    cost+=data->cost_matrix[index*n+start_index];
-    sol->cost = cost;
-    free(already_visited);
-    return sol;
+    return random_NN(data, 0.0);
 }
 
 TSP_solution* random_NN(TSP_data* data, double prob){
     
-    TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
-    if(sol == NULL){
-        logger(FATAL, "TSP_solution pointer allocation failed!");
-        perror("Error printed by perror");
-        exit(EXIT_FAILURE);
-    }
+    TSP_solution* sol = allocate_solution();
 
     int n = data->n_dimensions;
+    sol->size = n;
 
     sol->cycle = (Point*)malloc(sizeof(Point) * (n+1));
     if (sol->cycle == NULL) {
@@ -189,14 +134,10 @@ TSP_solution* Extra_Mileage(TSP_data* data){
 
 TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind){
 
-    TSP_solution* sol = (TSP_solution *)malloc(sizeof(TSP_solution));   //allocate the solution
-    if(sol == NULL){
-        logger(FATAL, "TSP_solution pointer allocation failed!");
-        perror("Error printed by perror");
-        exit(EXIT_FAILURE);
-    }
+    TSP_solution* sol = allocate_solution();
 
     int n = data->n_dimensions;
+    sol->size = n;
 
     sol->cycle = (Point*)malloc(sizeof(Point) * (n+1));
     if (sol->cycle == NULL) {
@@ -298,8 +239,17 @@ void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, c
     free(filename);
 }
 
+TSP_solution* allocate_solution(){
+    TSP_solution* sol = (TSP_solution*)malloc(sizeof(TSP_solution));  // allocate the solution
+    if (sol == NULL) {
+        logger(FATAL, "TSP_solution pointer allocation failed!");
+        perror("Error printed by perror");
+        exit(EXIT_FAILURE);
+    }
+    return sol;
+}
+
 void destroy_solution(TSP_solution* solution){
     free(solution-> cycle);
     free(solution);
 }
-

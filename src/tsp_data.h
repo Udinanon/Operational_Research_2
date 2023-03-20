@@ -25,6 +25,7 @@ typedef struct TSP_data {
 typedef struct TSP_solution {
   double cost;
   Point* cycle;
+  int size;
 } TSP_solution;
 
 TSP_data* init_tsp_data(); // initialize memory segment on stack
@@ -42,7 +43,9 @@ TSP_solution* Extra_Mileage_partial(TSP_data*, int );
 
 TSP_solution* Extra_Mileage(TSP_data*); //Extra-Mileage
 
-void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename); // can't have circular dependency with Utility so it's here
+TSP_solution* allocate_solution();
+
+void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename);  // can't have circular dependency with Utility so it's here
 
 void destroy_solution(TSP_solution* ); // deallocate a solution structure
 
