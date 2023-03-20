@@ -82,7 +82,7 @@ void parse_file(const char* filename, TSP_data* data) {
             }
             //data->points[data_counter] = malloc(sizeof(Point));
             Point* point = &data->points[data_counter];
-            point->index = index;
+            point->index = index - 1; // file indices go from 1 to N but we want 0 to N-1
             point->x = x;
             point->y = y;
             data_counter++;

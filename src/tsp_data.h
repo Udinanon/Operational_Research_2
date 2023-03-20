@@ -24,7 +24,7 @@ typedef struct TSP_data {
 
 typedef struct TSP_solution {
   double cost;
-  Point* cycle;
+  int* cycle;
   int size;
 } TSP_solution;
 
