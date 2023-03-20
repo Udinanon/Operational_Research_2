@@ -49,4 +49,8 @@ void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filenam
 
 void destroy_solution(TSP_solution* ); // deallocate a solution structure
 
+void two_OPT(TSP_solution* initial, TSP_data* data); // apply 2OPT
+
+void swap_array(TSP_solution* solution, int indices[2]); 
+
 #endif

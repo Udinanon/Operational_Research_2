@@ -254,7 +254,7 @@ void destroy_solution(TSP_solution* solution){
     free(solution);
 }
 
-TSP_solution* two_OPT(TSP_solution* initial, TSP_data* data){
+void two_OPT(TSP_solution* initial, TSP_data* data){
     int n=initial->size;
     double* cost_matrix = data->cost_matrix;
     double gain = 0;
@@ -279,9 +279,10 @@ TSP_solution* two_OPT(TSP_solution* initial, TSP_data* data){
 void swap_array(TSP_solution* solution, int indices[2]){
     int* array = solution->cycle;
     int end_index = indices[1];
-    for (int i = indices[0]; i <= end_index; i++) {
+    for (int i = indices[0]; i <= end_index/2; i++) {
         int temp = array[i];
         array[i] = array[end_index - 1 - i];
         array[end_index - 1 - i] = temp;
     }
+
 }
