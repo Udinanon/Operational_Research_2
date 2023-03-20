@@ -296,10 +296,10 @@ void save_solution(TSP_solution* solution, TSP_data* data, char* problem_name, c
     fprintf(f, "%f\n", solution->cost);
     fclose(f);
     free(filename);
-    destroy_solution(solution);
 }
 
 void destroy_solution(TSP_solution* solution){
     free(solution-> cycle);
     free(solution);
 }
+
