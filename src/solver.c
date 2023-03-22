@@ -71,6 +71,7 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
   int n = data->n_dimensions;
   TSP_solution* sol = allocate_solution(n+1);
 
+  // take the greater distance
   int max = -1;
   int A;
   int B;
@@ -88,6 +89,8 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
   already_visited[1] = B;
   already_visited[2] = A;
   int cost = data->cost_matrix[A * n + B] * 2;
+
+  // find the "least adding cost triangle" for "ind" times (if ind=n+1, I compute a cycle)
   while (index != ind) {
     int available_nodes[n - 2];
     int counter = 0;
@@ -104,6 +107,7 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
         counter++;
       }
     }
+    // in available_nodes there are the indexes of non-cycling nodes; O(n^2) time
     int min = __INT_MAX__;
     int second;
     int middle;
