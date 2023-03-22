@@ -17,6 +17,8 @@
                 "./src/tsp_parser.c",
                 "./src/utility.c",
                 "./src/tsp_data.c",
+                "./src/optimizer.c",
+                "./src/solver.c",
                 "-Og", // compile for debugging
                 "-lm", // link math library
                 "-Wall", // compiler warnings

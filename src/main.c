@@ -2,6 +2,8 @@
 #include "tsp_data.h"
 #include "tsp_parser.h"
 #include "utility.h"
+#include "solver.h"
+#include "optimizer.h"
 
 int main(int argc, char** argv) {
     logger(INFO, "CMD Args counter %d", argc);
@@ -20,8 +22,8 @@ int main(int argc, char** argv) {
 
     TSP_solution* solution = NN(data);
     save_solution(solution, data, params.filename, "solution");
-    two_OPT(solution, data);
-    save_solution(solution, data, params.filename, "solution2");
+    TSP_solution* opt_solution = two_OPT(solution, data, 100);
+    save_solution(opt_solution, data, params.filename, "solution2");
 
     solution = random_NN(data, 0.1);
     save_solution(solution, data, params.filename, "solution_rand");

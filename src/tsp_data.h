@@ -35,22 +35,10 @@ void create_cost_matrix(TSP_data* );
 
 void destroy_tsp_data(TSP_data* ); // deallocate entire structure
 
-TSP_solution* NN(TSP_data* ); //Nearest Neighbor
-
-TSP_solution* random_NN(TSP_data* , double ); //NN with randomness
-
-TSP_solution* Extra_Mileage_partial(TSP_data*, int );
-
-TSP_solution* Extra_Mileage(TSP_data*); //Extra-Mileage
-
-TSP_solution* allocate_solution();
+TSP_solution* allocate_solution(int);
 
 void save_solution(TSP_solution* solution, TSP_data* data, char* problem_filename, char* savename);  // can't have circular dependency with Utility so it's here
 
 void destroy_solution(TSP_solution* ); // deallocate a solution structure
-
-void two_OPT(TSP_solution* initial, TSP_data* data); // apply 2OPT
-
-void swap_array(TSP_solution* solution, int indices[2]); 
 
 #endif
