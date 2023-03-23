@@ -88,7 +88,7 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
   already_visited[0] = A;
   already_visited[1] = B;
   already_visited[2] = A;
-  int cost = data->cost_matrix[A * n + B] * 2;
+  double cost = data->cost_matrix[A * n + B] * 2;
 
   // find the "least adding cost triangle" for "ind" times (if ind=n+1, I compute a cycle)
   while (index != ind) {
@@ -111,12 +111,16 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
     double min = __DBL_MAX__;
     int second;
     int middle;
-    for (int i = 0; i < index; i++) {
-      for (int j = i + 1; j < index; j++) {  // select the edge i-j
+    int C;
+    for (int i = 0; i < index-1; i++) { {  // select the edge i-j
+        int j = i+1;
+        A = already_visited[i];
+        B = already_visited[j];
         double cost_ij = data->cost_matrix[already_visited[i] * n + already_visited[j]];
         for (int k = 0; k < counter; k++) {  // select a non-cycling node
-          double cost_ik = data->cost_matrix[already_visited[i] * n + available_nodes[k]];
-          double cost_kj = data->cost_matrix[available_nodes[k] * n + already_visited[j]];
+          C = available_nodes[k];
+          double cost_ik = data->cost_matrix[A * n + C];
+          double cost_kj = data->cost_matrix[C * n + B];
           double delta = cost_ik + cost_kj - cost_ij;
           if (delta < min) {
             min = delta;
@@ -134,7 +138,7 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
     index++;
   }
   for (int i = 0; i < n + 1; i++) {
-    sol->cycle[i] = data->points[already_visited[i]].index;
+    sol->cycle[i] = already_visited[i];
   }
   sol->cost = cost;
   free(already_visited);
