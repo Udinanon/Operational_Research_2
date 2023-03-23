@@ -108,7 +108,7 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
       }
     }
     // in available_nodes there are the indexes of non-cycling nodes; O(n^2) time
-    int min = __INT_MAX__;
+    double min = __DBL_MAX__;
     int second;
     int middle;
     for (int i = 0; i < index; i++) {
