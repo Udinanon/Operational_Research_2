@@ -113,11 +113,11 @@ TSP_solution* Extra_Mileage_partial(TSP_data* data, int ind) {
     int middle;
     for (int i = 0; i < index; i++) {
       for (int j = i + 1; j < index; j++) {  // select the edge i-j
-        int cost_ij = data->cost_matrix[already_visited[i] * n + already_visited[j]];
+        double cost_ij = data->cost_matrix[already_visited[i] * n + already_visited[j]];
         for (int k = 0; k < counter; k++) {  // select a non-cycling node
-          int cost_ik = data->cost_matrix[already_visited[i] * n + available_nodes[k]];
-          int cost_kj = data->cost_matrix[available_nodes[k] * n + already_visited[j]];
-          int delta = cost_ik + cost_kj - cost_ij;
+          double cost_ik = data->cost_matrix[already_visited[i] * n + available_nodes[k]];
+          double cost_kj = data->cost_matrix[available_nodes[k] * n + already_visited[j]];
+          double delta = cost_ik + cost_kj - cost_ij;
           if (delta < min) {
             min = delta;
             second = j;
