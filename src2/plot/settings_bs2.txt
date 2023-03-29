@@ -1,0 +1,8 @@
+unset colorbox
+
+set palette model RGB defined ( 0 "black", 1 "red" )
+
+plot '../plot/bs2.dat' u 1:2:3 with lines lc palette lw 2 notitle,\
+	'../plot/bs2.dat' u 1:2:(0.15):3 with circles fill solid notitle
+
+pause mouse close
