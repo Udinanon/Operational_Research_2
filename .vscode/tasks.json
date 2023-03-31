@@ -12,13 +12,18 @@
             "args": [
                 "-fdiagnostics-color=always", // colored errors and diagnostics
                 "-g", // add debug symbols for gdb and others
-                "./src/main.c",
-                "./src/cmd_parser.c",
-                "./src/tsp_parser.c",
-                "./src/utility.c",
-                "./src/tsp_data.c",
-                "./src/optimizer.c",
-                "./src/solver.c",
+                "./src2/main.c",
+                "./src2/chrono.c",
+                "./src2/io_utils.c",
+                "./src2/tsp_cplex.c",
+                "./src2/tsp_generative.c",
+                "./src2/tsp_meta.c",
+                "./src2/tsp.c",
+                "./src2/utils.c",
+                "-I/opt/ibm/ILOG/CPLEX_Studio2211/concert/include",
+                "-I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex",
+                "-L/opt/ibm/ILOG/CPLEX_Studio2211/cplex/lib/x86-64_linux/static_pic",
+                "-L/opt/ibm/ILOG/CPLEX_Studio2211/concert/lib/x86-64_linux/static_pic",
                 "-Og", // compile for debugging
                 "-lm", // link math library
                 "-Wall", // compiler warnings
