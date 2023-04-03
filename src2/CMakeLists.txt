@@ -4,8 +4,10 @@ project(tsp VERSION 0.1.0)
 #include(CTest)
 #enable_testing()
 
-include_directories("/opt/ibm/ILOG/CPLEX_Studio221/cplex/include/ilcplex")
-link_directories("/opt/ibm/ILOG/CPLEX_Studio221/cplex/lib/x86-64_linux/static_pic")
+include_directories("/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex")
+include_directories("opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex")
+link_directories("/opt/ibm/ILOG/CPLEX_Studio2211/cplex/lib/x86-64_linux/static_pic")
+link_directories("/opt/ibm/ILOG/CPLEX_Studio2211/concert/lib/x86-64_linux/static_pic")
 
 add_executable(tsp tsp_cplex.c tsp_meta.c tsp_generative.c tsp.c utils.c io_utils.c chrono.c main.c)
 
@@ -13,5 +15,5 @@ add_executable(tsp tsp_cplex.c tsp_meta.c tsp_generative.c tsp.c utils.c io_util
 #set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 set(CMAKE_CXX_FLAG "-Wall -O3")
 add_compile_options(-Wall -O3)
-target_link_libraries(${PROJECT_NAME} m -lcplex)
+target_link_libraries(${PROJECT_NAME} m -lcplex -lpthread -ldl)
 #include(CPack)
