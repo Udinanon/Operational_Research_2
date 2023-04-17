@@ -38,7 +38,9 @@ int main(int argc, char **argv)
 		printf("... TSP problem solved in %lf sec.s\n", t2-t1);  
 	}
 	
-	//free_instance(&inst);
+	free(xc);
+	free(yc);
+	delete_instance(&inst);
 	return 0; 
 }
 

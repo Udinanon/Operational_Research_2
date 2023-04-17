@@ -19,6 +19,7 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double timelimi
 int kick(instance *inst, int n_kick);
 int two_opt_vns(instance *inst, int n_kick, double time_limit);
 int genetic(instance *inst);
+int simulated_annealing(instance *inst, double temperature);
 
 
 
@@ -156,7 +157,7 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double time_lim
             for(int i=0; i<inst->nnodes; i++) best_succ[i] = inst->succ[i];
             best_cost = calculate_succ_cost(inst->succ, inst);
         }
-        if(delta>0){
+        if(delta>0){    //worsening move
             tabu[temp_i] = iteration;
             tabu[temp_j] = iteration;
         }
@@ -166,7 +167,6 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double time_lim
             printf("iteration: %d, delta: %f, tenure: %d\n",iteration, delta, tenure);
             printf("Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
         }
-
 
     }while(second()-t_start<time_limit);
 
@@ -181,6 +181,9 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double time_lim
     if(VERBOSE >= 30){
         printf("EXTRA-MILEAGE Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
     }
+
+    free(best_succ);
+    free(tabu);
     return 0;
 }
 
@@ -303,6 +306,11 @@ int kick(instance *inst, int n_kick){
         printf("Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
         printf("\n");
     }
+
+    free(path);
+    free(new_path);
+    free(kick_nodes);
+    free(ordered_nodes);
     return 0;
 }
 
@@ -332,7 +340,7 @@ int two_opt_vns(instance *inst, int n_kick, double time_limit){
             printf("temp_i: %d, temp_j: %d\n",temp_i, temp_j);
             printf("delta: %f\n",delta);
         }
-        if(delta<0){
+        if(delta<0){    //improving move
             //Change connection between nodes
             int old_succ_i = inst->succ[temp_i];
             int temp = inst->succ[old_succ_i];
@@ -368,7 +376,55 @@ int two_opt_vns(instance *inst, int n_kick, double time_limit){
     for(int i=0; i<inst->nnodes; i++) printf("|%d=%d| ",i, inst->succ[i]);
     printf("\n");
     printf("Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
+
+    free(best_succ);
     return 0;
+}
+
+int simulated_annealing(instance *inst, double temperature)
+{
+    if(inst->timelimit == -1){
+        print_error(" time limit not set (use 'tsp -h' for help)");
+    }
+    double t_start = second();
+    double best_cost = INFINITY;
+    int* startpath;
+    int* succ;
+    generate_random_path(&startpath, inst);
+    path_to_succ(startpath, succ, inst->nnodes);
+    do{
+        for(int i=0; i<inst->nnodes-1; i++){
+            for(int j=i+1; j<inst->nnodes; j++){
+                double delta = (cost(i,j,inst) + cost(inst->succ[i], inst->succ[j], inst)) - (cost(i, inst->succ[i], inst) + cost(j, inst->succ[j], inst));
+                if(VERBOSE >= 80){
+                    printf("delta: %f\n",delta);
+                }
+                if(delta<0){//improving move: take the first improving move found
+                    //Change connection between nodes
+                    int old_succ_i = inst->succ[i];
+                    int temp = inst->succ[old_succ_i];
+                    inst->succ[i] = j;
+                    inst->succ[old_succ_i] = inst->succ[j];
+
+                    //Update successors
+                    int prev = old_succ_i;
+                    int temp_next = inst->succ[temp];
+                    while((temp != j) && (temp != temp_next)){
+                        inst->succ[temp] = prev;
+                        prev = temp;
+                        temp = temp_next;
+                        temp_next = inst->succ[temp];
+                        // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
+                        // printf("temp_j: %d\n", temp_j);
+                    }
+                    inst->succ[temp] = prev;
+                }
+                else{//worsening move
+                    double prob = exp(-delta/temperature);
+                }
+            }
+        }
+    }while((second()-t_start) < inst->timelimit);
 }
 
 int genetic(instance *inst){
@@ -489,7 +545,7 @@ int genetic(instance *inst){
         int n_remove = len_new_population; //(int) inst->population/2;
         int c = 0;
         for(int i=0; i<inst->population; i++){
-            if(i == best_instance) continue;                        //do not update the best instance of the previous iteration
+            if(i == best_instance) continue;          //do not update the best instance of the previous iteration
             if(c == len_new_population) continue;     //scanned all instances on the new_population
             if(calculate_path_cost(&population[i*inst->nnodes], inst) > calculate_path_cost(&new_population[c*inst->nnodes], inst)){
                 if(random01() > 0.7){
@@ -515,6 +571,12 @@ int genetic(instance *inst){
 
     path_to_succ(&population[best_instance*inst->nnodes], inst->succ, inst->nnodes);
 
+
+    free(population);
+    free(unc_population);
+    free(parent1);
+    free(parent2);
+    free(new_population);
     return 0;
 }
 

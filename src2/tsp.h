@@ -104,5 +104,6 @@ void plot_points(instance *inst);
 void read_input(instance *inst);
 void print_error(const char *err);
 void parse_command_line(int argc, char** argv, instance *inst);
+void delete_instance(instance *inst);
 
 #endif   /* TSP_H_ */

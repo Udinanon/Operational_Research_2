@@ -19,6 +19,7 @@ void generate_random_points(double **xcoord, double **ycoord, int nrand, int see
 }
 
 
+//Writes the path given a successor list
 void succ_to_path(int *succ, int *path){
     int next = 0;
     int counter = 0;
@@ -30,7 +31,7 @@ void succ_to_path(int *succ, int *path){
 }
 
 
-// Writes a successor list given the path(assuming path starts from node 0),
+// Writes a successor list given the path (assuming path starts from node 0),
 // uncovered nodes in the successor list will mantain their value
 void path_to_succ(int *path, int *succ, int len){
     for(int i=0; i<len-1; i++){
@@ -56,6 +57,7 @@ void print_path(const int *path, int len){
         for(int j=i+1; j<len; j++){
             if(path[i] == path[j]){
                 error = 1;
+                break;
             }
         }
     }

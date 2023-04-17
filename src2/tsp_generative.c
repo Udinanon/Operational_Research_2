@@ -83,6 +83,9 @@ int extra_mileage_old(instance *inst){
     if(VERBOSE >= 30){
         printf("EXTRA-MILEAGE Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
     }
+
+    free(unc_nodes);
+    free(succ);
     return 0;
 }
 
@@ -106,6 +109,7 @@ int extra_mileage(int **out_succ, double p, int len_rcl, double t_limit, instanc
     starting_path[1] = temp_j;
 
     extra_mileage_compute(starting_path, &(*out_succ), 2, p, len_rcl, t_limit, inst);
+    free(starting_path);
 }
 
 // Requires an instance with a path computed and it will
@@ -156,18 +160,18 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                     if(succ[i] < 0) continue;
                     //if(succ[i] >= 0){
                         //for each uncovered node    len(unc_nodes[])
-                        for(int j=0; j<len_unc_nodes; j++){
-                            // skip already visited nodes for RCL.
-                            if(unc_nodes_rcl[j] != 0) continue;
-                            //calculates delta
-                            temp_delta = cost(i,unc_nodes[j],inst) + cost(unc_nodes[j], succ[i], inst) - cost(i, succ[i], inst);
-                            if(temp_delta < delta){
-                                delta = temp_delta;
-                                temp_i = i;
-                                temp_j = j;
-                                temp_k = succ[i];
-                            }
+                    for(int j=0; j<len_unc_nodes; j++){
+                        // skip already visited nodes for RCL.
+                        if(unc_nodes_rcl[j] != 0) continue;
+                        //calculates delta
+                        temp_delta = cost(i,unc_nodes[j],inst) + cost(unc_nodes[j], succ[i], inst) - cost(i, succ[i], inst);
+                        if(temp_delta < delta){
+                            delta = temp_delta;
+                            temp_i = i;
+                            temp_j = j;
+                            temp_k = succ[i];
                         }
+                    }
                     //}
                 }
                 // Add node with lowest cost to the list
@@ -222,6 +226,13 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
     if(CSVOUT >= 1){
         printf("CSVOUT_nodes%d_seed%d;%f;\n", inst->nnodes, inst->randomseed, calculate_succ_cost((*out_succ), inst));
     }
+
+
+    free(rcl);
+    free(rcl_prev);
+    free(unc_nodes_rcl);
+    free(unc_nodes);
+    free(succ);
     return 0;
 }
 
@@ -237,11 +248,11 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
 
     double t_start = second();
     int *unc_nodes = (int *) calloc(inst->nnodes-1, sizeof(int));               // List of uncovered nodes
-    (*succ) = (int *) calloc(inst->nnodes, sizeof(int));                     // List of successors
-    int *best_sol = (int *) calloc(inst->nnodes, sizeof(int));                   // Best solution
+    (*succ) = (int *) calloc(inst->nnodes, sizeof(int));                        // List of successors
+    int *best_sol = (int *) calloc(inst->nnodes, sizeof(int));                  // Best solution
     double best_sol_cost = INFINITY;
-    int *rcl = (int *) calloc(len_rcl, sizeof(int));                             // Restricted Candidate List
-    int *unc_nodes_rcl = (int *) calloc(inst->nnodes-1, sizeof(int));                           // Uncovered nodes flag for Restricted Candidate List
+    int *rcl = (int *) calloc(len_rcl, sizeof(int));                            // Restricted Candidate List
+    int *unc_nodes_rcl = (int *) calloc(inst->nnodes-1, sizeof(int));           // Uncovered nodes flag for Restricted Candidate List
 
     do{
         for(int i=1; i<inst->nnodes; i++) unc_nodes[i-1] = i;
@@ -321,6 +332,11 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
     if(CSVOUT >= 1){
         printf("CSVOUT_nodes%d_seed%d;%f;\n", inst->nnodes, inst->randomseed, calculate_succ_cost((*succ), inst));
     }
+
+    free(unc_nodes);
+    free(best_sol);
+    free(rcl);
+    free(unc_nodes_rcl);
     return 0;
 }
 
@@ -344,6 +360,7 @@ int generate_random_path(int **out_path, instance *inst){
         unc_nodes[n_rand] = unc_nodes[--len_unc_nodes];
     }
     
+    free(unc_nodes);
     return 0;
 }
 
