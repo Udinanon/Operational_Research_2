@@ -418,6 +418,7 @@ int simulated_annealing(instance *inst, double temperature)
                         // printf("temp_j: %d\n", temp_j);
                     }
                     inst->succ[temp] = prev;
+                    break;
                 }
                 else{//worsening move
                     double prob = exp(-delta/temperature);
