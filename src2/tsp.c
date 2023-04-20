@@ -421,6 +421,27 @@ int simulated_annealing(instance *inst, double temperature)
                 }
                 else{//worsening move
                     double prob = exp(-delta/temperature);
+                    temperature = TEMPERATURE_COEFF*temperature;
+                    if(random01() <= prob){
+                        //Change connection between nodes
+                        int old_succ_i = inst->succ[i];
+                        int temp = inst->succ[old_succ_i];
+                        inst->succ[i] = j;
+                        inst->succ[old_succ_i] = inst->succ[j];
+
+                        //Update successors
+                        int prev = old_succ_i;
+                        int temp_next = inst->succ[temp];
+                        while((temp != j) && (temp != temp_next)){
+                            inst->succ[temp] = prev;
+                            prev = temp;
+                            temp = temp_next;
+                            temp_next = inst->succ[temp];
+                            // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
+                            // printf("temp_j: %d\n", temp_j);
+                        }
+                        inst->succ[temp] = prev;
+                    }
                 }
             }
         }

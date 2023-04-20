@@ -12,8 +12,8 @@ void updateModel(instance *inst, CPXENVptr env, CPXLPptr lp);
 void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst);
 int xpos(int i, int j, instance *inst);
 void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *ncomp);
-int TSPopt2(instance *inst);
-
+int TSPopt2(instance *inst);	//he expects a singular function with different number of parameters for Benders: one without vns, one with vns, ecc.
+//don't try smarter implementation of benders, like last year
 
 /**************************************************************************************************************************/
 int TSPopt2(instance *inst)
