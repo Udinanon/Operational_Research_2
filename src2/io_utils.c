@@ -77,7 +77,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 
 
 
-void plot_best_sol(instance *inst){
+void plot_best_sol(instance *inst){	//checker
 	FILE *fout = fopen("../plot/bs2.dat", "w");
 	if(fout == NULL) print_error(" can't write to output file");
 
@@ -94,6 +94,13 @@ void plot_best_sol(instance *inst){
 	while(len_unv_nodes>0){
 
 		if(unv_nodes[prev] == 1){
+			if(len_unv_nodes==1 && inst->succ[prev] == 0)
+			{
+				printf("Printing last node");
+			}
+			else{
+				print_error("Found inner cycle, not feasible solution!");
+			}
 			prev = -1;
 			for(int i=0; (i<inst->nnodes) && (prev == -1); i++){
 				if(unv_nodes[i] == 0) prev = i;
