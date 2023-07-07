@@ -2,7 +2,7 @@
 
 
 
-
+/*
 int extra_mileage_old(instance *inst){
 
     int *unc_nodes = (int *) calloc(inst->nnodes, sizeof(int));
@@ -88,7 +88,7 @@ int extra_mileage_old(instance *inst){
     free(succ);
     return 0;
 }
-
+*/
 
 int extra_mileage(int **out_succ, double p, int len_rcl, double t_limit, instance *inst){
 

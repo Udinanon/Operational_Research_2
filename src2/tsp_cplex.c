@@ -128,7 +128,7 @@ int TSPopt2(instance *inst)
 		}
 		if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");	
 		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
-	}else if(mode == 3){									// Math-Heuristic
+	}else if(mode == 3){									// Math-Heuristic Hard-Fixing
 		
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
 		double prob = inst->p;

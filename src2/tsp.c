@@ -19,13 +19,13 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double timelimi
 int kick(instance *inst, int n_kick);
 int two_opt_vns(instance *inst, int n_kick, double time_limit);
 int genetic(instance *inst);
-int simulated_annealing(instance *inst, double temperature);
+int simulated_annealing(instance *inst);
 
 
 
 int TSPopt(instance *inst){
     int error = 0;
-    if(inst->model_type == 0){
+    if(inst->model_type == 0){  //greedy search
         if(inst->timelimit == INFINITY){
             if(greedy(&inst->succ, 1, 1, 0, inst)){
                 return 1;
@@ -37,7 +37,7 @@ int TSPopt(instance *inst){
         }
 
     }
-    if(inst->model_type == 1){
+    if(inst->model_type == 1){  //extra mileage
         int path[] = {50, 0};
         //extra_mileage_compute(path, &inst->succ, 2, inst->p, inst->len_rcl, inst->timelimit, inst);
         if(inst->timelimit == INFINITY){
@@ -46,7 +46,7 @@ int TSPopt(instance *inst){
             extra_mileage(&inst->succ, inst->p, inst->len_rcl, inst->timelimit, inst);
         }
     }
-    if(inst->model_type == 2) TSPopt2(inst);
+    if(inst->model_type == 2) TSPopt2(inst);    //cplex
 
     if(inst->refinement == 1){
         if(inst->meta == -1){                       //2-OPT algorithm ONLY
@@ -60,6 +60,8 @@ int TSPopt(instance *inst){
         }else if(inst->meta == 2){                  //Genetic algorithm
             error = genetic(inst);
             if(error) return error;
+        }else if(inst->meta ==3){
+            simulated_annealing(inst);
         }
     }
 
@@ -381,7 +383,7 @@ int two_opt_vns(instance *inst, int n_kick, double time_limit){
     return 0;
 }
 
-int simulated_annealing(instance *inst, double temperature)
+int simulated_annealing(instance *inst)
 {
     if(inst->timelimit == -1){
         print_error(" time limit not set (use 'tsp -h' for help)");
@@ -389,64 +391,66 @@ int simulated_annealing(instance *inst, double temperature)
     double t_start = second();
     double best_cost = INFINITY;
     int* startpath;
-    int* succ;
     generate_random_path(&startpath, inst);
-    path_to_succ(startpath, succ, inst->nnodes);
+    double temperature = calculate_path_cost(startpath, inst)/10;
+    path_to_succ(startpath, inst->succ, inst->nnodes);
     do{
-        for(int i=0; i<inst->nnodes-1; i++){
-            for(int j=i+1; j<inst->nnodes; j++){
-                double delta = (cost(i,j,inst) + cost(inst->succ[i], inst->succ[j], inst)) - (cost(i, inst->succ[i], inst) + cost(j, inst->succ[j], inst));
-                if(VERBOSE >= 80){
-                    printf("delta: %f\n",delta);
-                }
-                if(delta<0){//improving move: take the first improving move found
-                    //Change connection between nodes
-                    int old_succ_i = inst->succ[i];
-                    int temp = inst->succ[old_succ_i];
-                    inst->succ[i] = j;
-                    inst->succ[old_succ_i] = inst->succ[j];
+        int i = random01() * (inst->nnodes - 1);
+		int j = random01() * (inst->nnodes - 1);
+		while (i == j) j = random01() * (inst->nnodes - 1); //select two random nodes
+        double delta = (cost(i,j,inst) + cost(inst->succ[i], inst->succ[j], inst)) - (cost(i, inst->succ[i], inst) + cost(j, inst->succ[j], inst));
+        if(VERBOSE >= 80){
+            printf("delta: %f\n",delta);
+        }
+        if(delta<0){//improving move: take the first improving move found
+            //Change connection between nodes
+            int old_succ_i = inst->succ[i];
+            int temp = inst->succ[old_succ_i];
+            inst->succ[i] = j;
+            inst->succ[old_succ_i] = inst->succ[j];
 
-                    //Update successors
-                    int prev = old_succ_i;
-                    int temp_next = inst->succ[temp];
-                    while((temp != j) && (temp != temp_next)){
-                        inst->succ[temp] = prev;
-                        prev = temp;
-                        temp = temp_next;
-                        temp_next = inst->succ[temp];
-                        // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
-                        // printf("temp_j: %d\n", temp_j);
-                    }
+            //Update successors
+            int prev = old_succ_i;
+            int temp_next = inst->succ[temp];
+            while((temp != j) && (temp != temp_next)){
+                inst->succ[temp] = prev;
+                prev = temp;
+                temp = temp_next;
+                temp_next = inst->succ[temp];
+                // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
+                // printf("temp_j: %d\n", temp_j);
+            }
+            inst->succ[temp] = prev;
+            break;
+        }
+        else{//worsening move
+            double prob = exp(-delta/temperature);
+            temperature = TEMPERATURE_COEFF*temperature;
+            if(random01() <= prob){
+                //Change connection between nodes
+                int old_succ_i = inst->succ[i];
+                int temp = inst->succ[old_succ_i];
+                inst->succ[i] = j;
+                inst->succ[old_succ_i] = inst->succ[j];
+
+                //Update successors
+                int prev = old_succ_i;
+                int temp_next = inst->succ[temp];
+                while((temp != j) && (temp != temp_next)){
                     inst->succ[temp] = prev;
-                    break;
+                    prev = temp;
+                    temp = temp_next;
+                    temp_next = inst->succ[temp];
+                    // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
+                    // printf("temp_j: %d\n", temp_j);
                 }
-                else{//worsening move
-                    double prob = exp(-delta/temperature);
-                    temperature = TEMPERATURE_COEFF*temperature;
-                    if(random01() <= prob){
-                        //Change connection between nodes
-                        int old_succ_i = inst->succ[i];
-                        int temp = inst->succ[old_succ_i];
-                        inst->succ[i] = j;
-                        inst->succ[old_succ_i] = inst->succ[j];
-
-                        //Update successors
-                        int prev = old_succ_i;
-                        int temp_next = inst->succ[temp];
-                        while((temp != j) && (temp != temp_next)){
-                            inst->succ[temp] = prev;
-                            prev = temp;
-                            temp = temp_next;
-                            temp_next = inst->succ[temp];
-                            // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
-                            // printf("temp_j: %d\n", temp_j);
-                        }
-                        inst->succ[temp] = prev;
-                    }
-                }
+                inst->succ[temp] = prev;
             }
         }
     }while((second()-t_start) < inst->timelimit);
+    succ_to_path(inst->succ, inst->path);
+    free(startpath);
+    return 0;
 }
 
 int genetic(instance *inst){

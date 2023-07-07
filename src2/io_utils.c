@@ -76,14 +76,39 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 }
 
 
+void check_feasibility(instance *inst){	//checker
 
-void plot_best_sol(instance *inst){	//checker
+	int prev = 0;
+	int succ;
+	int *unv_nodes = (int *) calloc(inst->nnodes, sizeof(int));
+	int len_unv_nodes = inst->nnodes;
+	succ = inst->succ[prev];
+	while(len_unv_nodes>0){
+
+		if(unv_nodes[prev] == 1){
+			if(len_unv_nodes==0 && prev == 0)
+			{
+				printf("Printing last node");
+			}
+			else{
+				print_error("Found inner cycle, not feasible solution!");
+			}
+		}
+		unv_nodes[prev] = 1;
+		prev = inst->succ[prev];
+		succ = inst->succ[prev];
+		len_unv_nodes --;
+	}
+}
+
+
+
+void plot_best_sol(instance *inst){
 	FILE *fout = fopen("../plot/bs2.dat", "w");
 	if(fout == NULL) print_error(" can't write to output file");
 
 	int prev = 0;
 	int succ;
-	int end = 0;
 	int *unv_nodes = (int *) calloc(inst->nnodes, sizeof(int));
 	int len_unv_nodes = inst->nnodes;
 
@@ -94,16 +119,22 @@ void plot_best_sol(instance *inst){	//checker
 	while(len_unv_nodes>0){
 
 		if(unv_nodes[prev] == 1){
-			if(len_unv_nodes==1 && inst->succ[prev] == 0)
+			if(len_unv_nodes==0 && prev == 0)
 			{
 				printf("Printing last node");
 			}
 			else{
 				print_error("Found inner cycle, not feasible solution!");
-			}
-			prev = -1;
-			for(int i=0; (i<inst->nnodes) && (prev == -1); i++){
-				if(unv_nodes[i] == 0) prev = i;
+				if(len_unv_nodes==0 && prev != 0)
+				{
+					prev = 0;
+				}
+				else{
+					prev = -1;
+					for(int i=0; (i<inst->nnodes) && (prev == -1); i++){
+						if(unv_nodes[i] == 0) prev = i;
+					}
+				}
 			}
 			fprintf(fout, "%lf %lf 1\r\n", inst->xcoord[prev], inst->ycoord[prev]);
 			succ = inst->succ[prev];

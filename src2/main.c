@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	}
 
 	inst.t_start = t1;
-	compute_costs(&inst);
+	compute_costs(&inst);	//compute all costs-distances between nodes
 
 	if ( TSPopt(&inst) ) print_error(" error within TSPopt()");
 	double t2 = second(); 
