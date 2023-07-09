@@ -9,6 +9,7 @@ void fixLowerBound(CPXENVptr env, CPXLPptr lp, int k, int succ_k, instance *inst
 void freeLowerBound(CPXENVptr env, CPXLPptr lp, int min_k, int max_k, instance *inst);
 void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst);
 void updateModel(instance *inst, CPXENVptr env, CPXLPptr lp);
+void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst);
 void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst);
 int xpos(int i, int j, instance *inst);
 void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *ncomp);
@@ -71,7 +72,7 @@ int TSPopt2(instance *inst)
 			
 			updateModel(inst, env, lp);
 		}while(inst->ncomp > 1);
-	}else if(mode == 1){									// Benders' Loop method with time limit
+	}else if(mode == 1){									// Benders' Loop method with time limit and patching heuristic
 		double lb = 0;
 
 		double ub = INFINITY; // generate a solution with an heuristic and calculate the cost;
@@ -103,9 +104,9 @@ int TSPopt2(instance *inst)
 			//printf("Time to calculate connected components and succ: %f\n", (second()-t1));
 			if(inst->ncomp > 1){
 				updateModel(inst, env, lp);
-				patchingHeuristic(inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
-				two_opt(inst->succ, INFINITY, inst);
-				// patchingHeuristicUpdate(env, lp, inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
+				//patchingHeuristic(inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
+				//two_opt(inst->succ, INFINITY, inst);
+				patchingHeuristicUpdate(env, lp, inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
 				ub = dmin(calculate_succ_cost(inst->succ, inst), ub);
 			}else{
 				ub = lb;
@@ -119,7 +120,7 @@ int TSPopt2(instance *inst)
 		}while((lb < (1-XSMALL)*ub) && ((second() - inst->t_start) < inst->timelimit));
 
 	}else if(mode == 2){									// Callback
-		CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst);
+		if(CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst)) print_error("CPXcallbacksetfunc() error");
 		error = CPXmipopt(env,lp);
 		if ( error ) 
 		{
@@ -377,6 +378,11 @@ void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst){
 // Slide --; 4-May-2022 - CALLBACK
 static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle ) 
 { 
+
+	int error;
+	CPXENVptr env = CPXopenCPLEX(&error);
+	if (error) print_error("CPXopenCPLEX() error");
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1");
 	instance* inst = (instance*) userhandle;  
 	double* xstar = (double*) malloc(inst->ncols * sizeof(double));  
 	double objval = CPX_INFBOUND; 
@@ -404,9 +410,33 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 			addOneCompSec(NULL, NULL, comp, k, context, inst);
 			//printf("adding component %d/%d components\n", k, ncomp);
 		}
+		// Patching heuristic
+		if(inst->patch){
+			do{
+				calculateComponents(&a, &comp, &ncomp, xstar, inst);
+				patchingHeuristicUpdate(env, lp, inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
+			} while(ncomp>1);
+	}
 
 	}
-	
+
+	calculateComponents(&a, &comp, &ncomp, xstar, inst);
+	//Repair the solution and post it to CPLEX if better than incumbent, eventually this solution will be used by cplex
+	if(inst->post && ncomp==1){
+		double* xheu = (double*)malloc(inst->ncols * sizeof(double));
+		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
+		for (int i = 0; i < inst->ncols; i++) xheu[i] = 0.0;							//initialize xheu to all zeros
+		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, inst->succ[i], inst)] = 1.0;	//set solution edges to one
+		int* ind = (int*)malloc(inst->ncols * sizeof(int));
+		for (int j = 0; j < inst->ncols; j++) ind[j] = j;
+
+		two_opt(inst->succ, inst->timelimit, inst);
+		if (CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, calculate_succ_cost(inst->succ, inst), CPXCALLBACKSOLUTION_NOCHECK)) print_error("CPXcallbackpostheursoln() error");
+
+		//free memory
+		free(ind);
+		free(xheu);
+	}
 	free(a);
 	free(comp);
 	free(xstar); 

@@ -52,6 +52,8 @@ typedef struct {
 	int plot;
 	// for cplex
 	int ncols;
+	int post;
+	int patch;
 
 	//global data
 	int *succ;								// successors

@@ -21,6 +21,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	inst->nrand = 0;
 	inst->integer_costs = 0;
 	inst->plot = 1;
+	inst->post = 0;
 
     int help = 0; if ( argc < 1 ) help = 1;	
 	for ( int i = 1; i < argc; i++ ) 
@@ -33,13 +34,15 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		if ( strcmp(argv[i],"-tl") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }				// total time limit
 		if ( strcmp(argv[i],"-model_type") == 0 ) { inst->model_type = atoi(argv[++i]); continue; } 	// model type
 		if ( strcmp(argv[i],"-model") == 0 ) { inst->model_type = atoi(argv[++i]); continue; } 			// model type
-		if ( strcmp(argv[i],"-method") == 0 ) { inst->method = atoi(argv[++i]); continue; } 			// model type
+		if ( strcmp(argv[i],"-method") == 0 ) { inst->method = atoi(argv[++i]); continue; } 			// method for cplex
 		if ( strcmp(argv[i],"-p") == 0 ) { inst->p = atof(argv[++i]); continue; } 						// probability param
 		if ( strcmp(argv[i],"-len_rcl") == 0 ) { inst->len_rcl = atoi(argv[++i]); continue; } 			// length of RCL param
 		if ( strcmp(argv[i],"-refinement") == 0 ) { inst->refinement = atoi(argv[++i]); continue; } 	// refinement type
 		if ( strcmp(argv[i],"-meta") == 0 ) { inst->meta = atoi(argv[++i]); continue; } 				// meta type
 		if ( strcmp(argv[i],"-kick") == 0 ) { inst->kick = atoi(argv[++i]); continue; } 				// kick param
 		if ( strcmp(argv[i],"-population") == 0 ) { inst->population = atoi(argv[++i]); continue; } 				// kick param
+		if ( strcmp(argv[i],"-post") == 0 ) { inst->patch = atoi(argv[++i]); continue; }				// patchheuristic
+		if ( strcmp(argv[i],"-post") == 0 ) { inst->post = atoi(argv[++i]); continue; }					// postheuristic
 		if ( strcmp(argv[i],"-n") == 0 ) { inst->nrand = abs(atoi(argv[++i])); continue; } 				// number of random points
 		if ( strcmp(argv[i],"-seed") == 0 ) { inst->randomseed = abs(atoi(argv[++i])); continue; } 		// random seed
 		if ( strcmp(argv[i],"-threads") == 0 ) { inst->num_threads = atoi(argv[++i]); continue; } 		// n. threads

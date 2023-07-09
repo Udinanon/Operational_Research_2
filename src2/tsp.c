@@ -60,7 +60,7 @@ int TSPopt(instance *inst){
         }else if(inst->meta == 2){                  //Genetic algorithm
             error = genetic(inst);
             if(error) return error;
-        }else if(inst->meta ==3){
+        }else if(inst->meta ==3){                   //Simulated annealing
             simulated_annealing(inst);
         }
     }
