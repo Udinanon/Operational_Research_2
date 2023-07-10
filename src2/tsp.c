@@ -173,6 +173,7 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double time_lim
     }while(second()-t_start<time_limit);
 
     for(int i=0; i<inst->nnodes; i++) inst->succ[i] = best_succ[i];
+    inst->best_sol = &best_cost;
 
     
     if(VERBOSE >= 40){
@@ -373,6 +374,7 @@ int two_opt_vns(instance *inst, int n_kick, double time_limit){
     }while(t1-t_start<time_limit);
 
     for(int i=0; i<inst->nnodes; i++) inst->succ[i] = best_succ[i];
+    inst->best_sol = &best_cost;
 
     printf("Best solution found with TWO-OPT + VNS algorithm:\n");
     for(int i=0; i<inst->nnodes; i++) printf("|%d=%d| ",i, inst->succ[i]);
@@ -390,6 +392,7 @@ int simulated_annealing(instance *inst)
     }
     double t_start = second();
     double best_cost = INFINITY;
+    int *best_succ = (int *) calloc(inst->nnodes, sizeof(int));
     int* startpath;
     generate_random_path(&startpath, inst);
     double temperature = calculate_path_cost(startpath, inst)/10;
@@ -447,8 +450,18 @@ int simulated_annealing(instance *inst)
                 inst->succ[temp] = prev;
             }
         }
+        int current_cost = calculate_succ_cost(inst->succ, inst);
+        if(best_cost>current_cost){
+            for(int i=0; i<inst->nnodes; i++) best_succ[i] = inst->succ[i];
+            best_cost = current_cost;
+        }
     }while((second()-t_start) < inst->timelimit);
+
+    for(int i=0; i<inst->nnodes; i++) inst->succ[i] = best_succ[i];
+    inst->best_sol = &best_cost;    
     succ_to_path(inst->succ, inst->path);
+
+    free(best_succ);
     free(startpath);
     return 0;
 }
@@ -478,9 +491,11 @@ int genetic(instance *inst){
         for(int i=0; i<inst->nnodes; i++){
             population[k*inst->nnodes + i] = path[i];
         }
-        if(best_cost>calculate_path_cost(path, inst)){
+
+        int current_cost = calculate_path_cost(path, inst);
+        if(best_cost>current_cost){
             best_instance = k;
-            best_cost = calculate_path_cost(path, inst);
+            best_cost = current_cost;
         }
     }
     printf("Gen: %d, Best solution: %d, with cost: %3.2f\n", iteration, best_instance, best_cost);
@@ -584,10 +599,11 @@ int genetic(instance *inst){
         }
         //update best instance
         for(int k=0; k<inst->population; k++){
-            
-            if(best_cost>calculate_path_cost(&population[k*inst->nnodes], inst)){
+
+            int current_cost = calculate_path_cost(&population[k*inst->nnodes], inst);
+            if(best_cost>current_cost){
                 best_instance = k;
-                best_cost = calculate_path_cost(&population[k*inst->nnodes], inst);
+                best_cost = current_cost;
             }
         }
         iteration ++;
@@ -596,6 +612,7 @@ int genetic(instance *inst){
     }while((second()-t_start) < inst->timelimit);
 
     path_to_succ(&population[best_instance*inst->nnodes], inst->succ, inst->nnodes);
+    succ_to_path(inst->succ, inst->path);
 
 
     free(population);
