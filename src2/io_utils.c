@@ -41,7 +41,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		if ( strcmp(argv[i],"-meta") == 0 ) { inst->meta = atoi(argv[++i]); continue; } 				// meta type
 		if ( strcmp(argv[i],"-kick") == 0 ) { inst->kick = atoi(argv[++i]); continue; } 				// kick param
 		if ( strcmp(argv[i],"-population") == 0 ) { inst->population = atoi(argv[++i]); continue; } 				// kick param
-		if ( strcmp(argv[i],"-post") == 0 ) { inst->patch = atoi(argv[++i]); continue; }				// patchheuristic
+		if ( strcmp(argv[i],"-patch") == 0 ) { inst->patch = atoi(argv[++i]); continue; }				// patchheuristic
 		if ( strcmp(argv[i],"-post") == 0 ) { inst->post = atoi(argv[++i]); continue; }					// postheuristic
 		if ( strcmp(argv[i],"-n") == 0 ) { inst->nrand = abs(atoi(argv[++i])); continue; } 				// number of random points
 		if ( strcmp(argv[i],"-seed") == 0 ) { inst->randomseed = abs(atoi(argv[++i])); continue; } 		// random seed
@@ -70,6 +70,8 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("-seed %d\n", inst->randomseed); 
 		printf("-threads %d\n", inst->num_threads); 
 		printf("-int %d\n", inst->integer_costs); 
+		printf("-patch %d\n", inst->patch);
+		printf("-post %d\n", inst->post);
 		printf("\nenter -help or --help for help\n");
 		printf("----------------------------------------------------------------------------------------------\n\n");
 	}        
@@ -221,7 +223,7 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 			continue;
 		}
 
-		if ( strncmp(par_name, "COMMENT", 7) == 0 ) 
+		else if ( strncmp(par_name, "COMMENT", 7) == 0 ) 
 		{
 			active_section = 0;   
 			token1 = strtok(NULL, "");  
@@ -229,7 +231,7 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 			continue;
 		}   
 		
-		if ( strncmp(par_name, "TYPE", 4) == 0 ) 
+		else if ( strncmp(par_name, "TYPE", 4) == 0 ) 
 		{
 			token1 = strtok(NULL, " :");  
 			if ( strncmp(token1, "TSP",3) != 0 ) print_error(" format error:  only TYPE == TSP implemented so far!!!!!!"); 
@@ -238,7 +240,7 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 		}
 		
 
-		if ( strncmp(par_name, "DIMENSION", 9) == 0 ) 
+		else if ( strncmp(par_name, "DIMENSION", 9) == 0 ) 
 		{
 			if ( inst->nnodes >= 0 ) print_error(" repeated DIMENSION section in input file");
 			token1 = strtok(NULL, " :");
@@ -251,21 +253,39 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 		}
 
 
-		if ( strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0 ) 
+		else if ( strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0 ) 
 		{
 			token1 = strtok(NULL, " :");
-			if ( strncmp(token1, "EUC_2D", 6) != 0 ) print_error(" format error:  only EDGE_WEIGHT_TYPE == EUC_2D implemented so far!!!!!!"); 
+            if (strncmp(token1, "EUC_2D", 6) == 0)
+                inst->weight_type = EUC_2D;
+            if (strncmp(token1, "MAX_2D", 6) == 0)
+                inst->weight_type = MAX_2D;
+            if (strncmp(token1, "MAN_2D", 6) == 0)
+                inst->weight_type = MAN_2D;
+            if (strncmp(token1, "CEIL_2D", 7) == 0)
+                inst->weight_type = CEIL_2D;
+            if (strncmp(token1, "ATT", 3) == 0)
+                inst->weight_type = ATT;
+            if (strncmp(token1, "EXPLICIT", 8) == 0)
+                print_error("#PARSE_INST Wrong edge weight type, this program resolve only 2D TSP case with coordinate type.");
 			active_section = 0;
 			continue;
 		}            
 		
-		if ( strncmp(par_name, "NODE_COORD_SECTION", 18) == 0 ) 
+		else if ( strncmp(par_name, "NODE_COORD_SECTION", 18) == 0 ) 
 		{
 			if ( inst->nnodes <= 0 ) print_error(" ... DIMENSION section should appear before NODE_COORD_SECTION section");
 			active_section = 1;   
 			continue;
 		}
-		
+
+		else if ( strncmp(par_name, "EOF", 3) == 0 ) 
+		{
+			active_section = 0;
+			break;
+		}
+
+		else{
 		if ( strncmp(par_name, "DEMAND_SECTION", 14) == 0 ) 
 		{
 			if ( inst->nnodes <= 0 ) print_error(" ... DIMENSION section should appear before DEMAND_SECTION section");
@@ -273,12 +293,12 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 			continue;
 		}  
 		
-		if ( strncmp(par_name, "EOF", 3) == 0 ) 
-		{
-			active_section = 0;
-			break;
+		if (strncmp(par_name, "EDGE_WEIGHT_SECTION", 19) == 0)
+        {
+			active_section = 2;
+            continue;
+        }
 		}
-		
 			
 		if ( active_section == 1 ) // within NODE_COORD_SECTION
 		{
@@ -291,6 +311,12 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 			if ( do_print ) printf(" ... node %4d at coordinates ( %15.7lf , %15.7lf )\n", i+1, inst->xcoord[i], inst->ycoord[i]); 
 			continue;
 		}
+
+		if( active_section == 2){
+			
+			continue;
+		}
+
 
 		printf(" final active section %d\n", active_section);
 		print_error(" ... wrong format for the current simplified parser!!!!!!!!!");     

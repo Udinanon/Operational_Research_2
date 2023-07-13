@@ -235,8 +235,8 @@ int TSPopt2(instance *inst)
 			}
 			if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");	
 			else{
-				build_sol(xheu, inst, succ, comp, ncomp);
-				int current_cost = compute_solution_cost(inst->succ, inst);
+				build_sol(xheu, inst, succ, comp, &ncomp);
+				int current_cost = calculate_succ_cost(inst->succ, inst);
 				if (current_cost < 0.9999 * best_cost) {
 					best_cost = current_cost;
 					for (int k = 0; k < inst->nnodes; k++) inst->succ[k] = succ[k];
@@ -552,7 +552,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 		}
 
 	double objheu = calculate_succ_cost(succ, inst);
-	double incumbent = CPX_INFBOUND;
+	incumbent = CPX_INFBOUND;
 	CPXcallbackgetinfodbl(context, CPXCALLBACKINFO_BEST_SOL, &incumbent);
 	//Post the solution to CPLEX if with no subtours
 	if(inst->post && objheu<0.99*incumbent){

@@ -23,6 +23,17 @@
 
 //for simulated annealing only
 #define TEMPERATURE_COEFF 0.99
+
+//weight types
+
+typedef enum
+{
+    EUC_2D,    // weights are Euclidean distances in 2-D
+    MAX_2D,    // weights are maximum distances in 2-D
+    MAN_2D,    // weights are Manhattan distances in 2-D
+    CEIL_2D,   // weights are Euclidean distances in 2-D rounded up
+    ATT        // special distance function for problems att48 and att532 (Pseudo-Euclidean)
+} weight_type; // Other formats are not supported
                 
 //data structures  
 
@@ -54,6 +65,7 @@ typedef struct {
 	int ncols;
 	int post;
 	int patch;
+	weight_type weight_type;
 
 	//global data
 	int *succ;								// successors

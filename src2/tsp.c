@@ -9,6 +9,7 @@ void print_error(const char *err);
 
 double dist(int i, int j, instance *inst);
 void compute_costs(instance *inst);
+int nearest_int(double val);
 
 int comparePaths(int *path1, int *path2, int len);
 void copyPaths(int *src, int *dst, int len);
@@ -68,7 +69,10 @@ int TSPopt(instance *inst){
     return 0;
 }
 
-
+int nearest_int(double val)
+{
+    return (int)(val + 0.499999);
+}
 
 void compute_costs(instance *inst){
     //allocate memory
@@ -86,11 +90,48 @@ void compute_costs(instance *inst){
 
 double dist(int i, int j, instance *inst)
 {
-	double dx = inst->xcoord[i] - inst->xcoord[j];
-	double dy = inst->ycoord[i] - inst->ycoord[j]; 
-	if ( !inst->integer_costs ) return sqrt(dx*dx+dy*dy);
-	int dis = sqrt(dx*dx+dy*dy) + 0.5; // nearest integer 
-	return dis+0.0;
+    if(inst->weight_type == MAX_2D){
+        double dx = fabs(inst->xcoord[i] - inst->xcoord[j]);
+        double dy = fabs(inst->ycoord[i] - inst->ycoord[j]);
+        if (inst->integer_costs)
+        {
+            dx = nearest_int(dx);
+            dy = nearest_int(dy);
+        }
+        return dmax(dx, dy);
+    }
+    else if(inst->weight_type == MAN_2D){
+        double dx = fabs(inst->xcoord[i] - inst->xcoord[j]);
+        double dy = fabs(inst->ycoord[i] - inst->ycoord[j]);
+        if (inst->integer_costs) return nearest_int(dx + dy);
+        return (dx + dy);
+    }
+    else if(inst->weight_type == CEIL_2D){
+        double dx = inst->xcoord[i] - inst->xcoord[j];
+        double dy = inst->ycoord[i] - inst->ycoord[j];
+        double dist = sqrt(dx * dx + dy * dy);
+        return ceil(dist);
+    }
+    else if(inst->weight_type == ATT){
+        double dx = inst->xcoord[i] - inst->xcoord[j];
+        double dy = inst->ycoord[i] - inst->ycoord[j];
+        double r = sqrt((dx * dx + dy * dy) / 10.0);
+        if (inst->integer_costs)
+        {
+            double t = nearest_int(r);
+            t += (t < r) ? 1 : 0;
+            return t;
+        }
+        return r;
+    }
+    else{
+        if(inst->weight_type != EUC_2D) printf("Not implemented; approximate with Euc2D\n");
+        double dx = inst->xcoord[i] - inst->xcoord[j];
+        double dy = inst->ycoord[i] - inst->ycoord[j]; 
+        if ( !inst->integer_costs ) return sqrt(dx*dx+dy*dy);
+        int dis = sqrt(dx*dx+dy*dy) + 0.5; // nearest integer 
+        return dis+0.0;
+    }
 }
 
 double cost(int i, int j, instance *inst){
