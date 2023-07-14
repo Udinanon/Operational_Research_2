@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 
 	if ( TSPopt(&inst) ) print_error(" error within TSPopt()");	//resolve the instsance
 	double t2 = second(); 
+	check_feasibility(&inst);
 	if(inst.plot == 1){
     	plot_best_sol(&inst);
 	}
