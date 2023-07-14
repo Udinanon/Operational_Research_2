@@ -5,12 +5,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	if ( VERBOSE >= 100 ) printf(" running %s with %d parameters \n", argv[0], argc-1); 
 		
 	// default   
-	inst->model_type = 0;
-	inst->method = 0;
-	inst->p = 1;
-	inst->len_rcl = 1;
+	inst->model_type = "Greedy";
+	inst->method = "Benders";
+	inst->p = 0.5;
+	inst->len_rcl = 10;
 	inst->refinement = -1;
-	inst->meta = -1;
+	inst->meta = "2-OPT";
 	inst->kick = -1;
 	inst->population = -1;
 	strcpy(inst->input_file, "NULL");
@@ -22,6 +22,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	inst->integer_costs = 0;
 	inst->plot = 1;
 	inst->post = 0;
+	inst->patch = 0;
 
     int help = 0; if ( argc < 1 ) help = 1;	
 	for ( int i = 1; i < argc; i++ ) 
@@ -32,13 +33,13 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		// if ( strcmp(argv[i],"-of") == 0 ) { strcpy(inst->output_file,argv[++i]); continue; } 			// output file
 		if ( strcmp(argv[i],"-time_limit") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }		// total time limit
 		if ( strcmp(argv[i],"-tl") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }				// total time limit
-		if ( strcmp(argv[i],"-model_type") == 0 ) { inst->model_type = atoi(argv[++i]); continue; } 	// model type
-		if ( strcmp(argv[i],"-model") == 0 ) { inst->model_type = atoi(argv[++i]); continue; } 			// model type
-		if ( strcmp(argv[i],"-method") == 0 ) { inst->method = atoi(argv[++i]); continue; } 			// method for cplex
+		if ( strcmp(argv[i],"-model_type") == 0 ) { inst->model_type = argv[++i]; continue; } 	// model type
+		if ( strcmp(argv[i],"-model") == 0 ) { inst->model_type = argv[++i]; continue; } 			// model type
+		if ( strcmp(argv[i],"-method") == 0 ) { inst->method = argv[++i]; continue; } 			// method for cplex
 		if ( strcmp(argv[i],"-p") == 0 ) { inst->p = atof(argv[++i]); continue; } 						// probability param
 		if ( strcmp(argv[i],"-len_rcl") == 0 ) { inst->len_rcl = atoi(argv[++i]); continue; } 			// length of RCL param
 		if ( strcmp(argv[i],"-refinement") == 0 ) { inst->refinement = atoi(argv[++i]); continue; } 	// refinement type
-		if ( strcmp(argv[i],"-meta") == 0 ) { inst->meta = atoi(argv[++i]); continue; } 				// meta type
+		if ( strcmp(argv[i],"-meta") == 0 ) { inst->meta = argv[++i]; continue; } 				// meta type
 		if ( strcmp(argv[i],"-kick") == 0 ) { inst->kick = atoi(argv[++i]); continue; } 				// kick param
 		if ( strcmp(argv[i],"-population") == 0 ) { inst->population = atoi(argv[++i]); continue; } 				// kick param
 		if ( strcmp(argv[i],"-patch") == 0 ) { inst->patch = atoi(argv[++i]); continue; }				// patchheuristic
@@ -58,12 +59,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("\n\navailable parameters (vers. 16-may-2015) --------------------------------------------------\n");
 		printf("-file || -f %s\n", inst->input_file); 
 		printf("-time_limit || -tl %lf\n", inst->timelimit); 
-		printf("-model_type || -model %d\n", inst->model_type); 
-		printf("-method %d\n", inst->method); 
+		printf("-model_type || -model %s\n", inst->model_type); 
+		printf("-method %s\n", inst->method); 
 		printf("-p %f\n", inst->p); 
 		printf("-len_rcl %d\n", inst->len_rcl); 
 		printf("-refinement %d\n", inst->refinement); 
-		printf("-meta %d\n", inst->meta); 
+		printf("-meta %s\n", inst->meta); 
 		printf("-kick %d\n", inst->kick); 
 		printf("-population %d\n", inst->population); 
 		printf("-n %d\n", inst->nrand); 
@@ -227,7 +228,7 @@ void read_input(instance *inst) // simplified TSP parser, not all SECTIONs detec
 		{
 			active_section = 0;   
 			token1 = strtok(NULL, "");  
-			if ( VERBOSE >= 10 ) printf(" ... solving instance %s with model %d\n\n", token1, inst->model_type);
+			if ( VERBOSE >= 10 ) printf(" ... solving instance %s with model %s\n\n", token1, inst->model_type);
 			continue;
 		}   
 		
@@ -339,6 +340,9 @@ void delete_instance(instance* inst)
 	free(inst->path);	
 	free(inst->comp);
 	free(inst->best_sol);
+	free(inst->model_type);
+	free(inst->method);
+	free(inst->meta);
 	free(inst);
 	return;
 }

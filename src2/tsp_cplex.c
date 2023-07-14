@@ -46,8 +46,7 @@ int TSPopt2(instance *inst)
 	double *xstar = (double *) calloc(ncols, sizeof(double));
 
 
-	int mode = inst->method;
-	if(mode == 0){											// Benders' Loop method
+	if(strncmp(inst->method, "Basic", 5) == 0){											// Benders' Loop method
 		do{
 			error = CPXmipopt(env,lp);
 			if ( error ) 
@@ -72,7 +71,7 @@ int TSPopt2(instance *inst)
 			
 			updateModel(inst, env, lp, inst->ncomp, inst->comp);
 		}while(inst->ncomp > 1);
-	}else if(mode == 1){									// Benders' Loop method with time limit and patching heuristic
+	}else if(strncmp(inst->method, "Benders", 7) == 0){									// Benders' Loop method with time limit and patching heuristic
 		double lb = 0;
 		double ub = INFINITY; // generate a solution with an heuristic and calculate the cost;
 		
@@ -155,7 +154,7 @@ int TSPopt2(instance *inst)
 			//printf("Ellapsed time: %f\n", (second() - inst->t_start));
 		}while((lb < (1-XSMALL)*ub) && ((second() - inst->t_start) < inst->timelimit));
 
-	}else if(mode == 2){									// Callback
+	}else if(strncmp(inst->method, "Callback", 8) == 0){									// Callback
 		int ncols = inst->ncols;
 
 		//inizialization
@@ -200,7 +199,7 @@ int TSPopt2(instance *inst)
 		free(xstar);
 		free(comp);
 		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
-	}else if(mode == 3){									// Math-Heuristic Hard-Fixing
+	}else if(strncmp(inst->method, "Hard", 4) == 0){									// Math-Heuristic Hard-Fixing
 		
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
 		double best_cost = INFINITY;
@@ -249,7 +248,7 @@ int TSPopt2(instance *inst)
 		free(ind);
 		free(succ);
 		free(comp);
-	}else if(mode == 4){									// Local Branching
+	}else if(strncmp(inst->method, "Local", 5) == 0){									// Local Branching
 		// Hyperparameter to set
 		int k = 30;
 		printf("qua\n");

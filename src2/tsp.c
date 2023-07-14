@@ -26,7 +26,7 @@ int simulated_annealing(instance *inst);
 
 int TSPopt(instance *inst){
     int error = 0;
-    if(inst->model_type == 0){  //greedy search
+    if(strncmp(inst->model_type, "Greedy", 6) == 0){  //greedy search
         if(inst->timelimit == INFINITY){
             if(greedy(&inst->succ, 1, 1, 0, inst)){
                 return 1;
@@ -38,7 +38,7 @@ int TSPopt(instance *inst){
         }
 
     }
-    if(inst->model_type == 1){  //extra mileage
+    else if(strncmp(inst->model_type, "Extra-Mileage", 13) == 0){  //extra mileage
         int path[] = {50, 0};
         //extra_mileage_compute(path, &inst->succ, 2, inst->p, inst->len_rcl, inst->timelimit, inst);
         if(inst->timelimit == INFINITY){
@@ -47,21 +47,21 @@ int TSPopt(instance *inst){
             extra_mileage(&inst->succ, inst->p, inst->len_rcl, inst->timelimit, inst);
         }
     }
-    if(inst->model_type == 2) TSPopt2(inst);    //cplex
+    else if(strncmp(inst->model_type, "Cplex", 5) == 0) TSPopt2(inst);    //cplex
 
     if(inst->refinement == 1){
-        if(inst->meta == -1){                       //2-OPT algorithm ONLY
+        if(strncmp(inst->meta, "2-OPT", 5) == 0){                       //2-OPT algorithm ONLY
             two_opt(inst->succ, INFINITY, inst);
-        }else if(inst->meta == 0){                  //TABU search algorithm
+        }else if(strncmp(inst->meta, "TABU", 4) == 0){                  //TABU search algorithm
             two_opt_tabu(inst, inst->nnodes/10, inst->nnodes/2, inst->timelimit);
-        }else if(inst->meta == 1){                  //VNS algorithm
+        }else if(strncmp(inst->meta, "VNS", 3) == 0){                  //VNS algorithm
             if(inst->kick != -1){
                 two_opt_vns(inst, inst->kick, inst->timelimit);
             }
-        }else if(inst->meta == 2){                  //Genetic algorithm
+        }else if(strncmp(inst->meta, "Genetic", 7) == 0){                  //Genetic algorithm
             error = genetic(inst);
             if(error) return error;
-        }else if(inst->meta ==3){                   //Simulated annealing
+        }else if(strncmp(inst->meta, "Simulated", 9) == 0){                   //Simulated annealing
             simulated_annealing(inst);
         }
     }

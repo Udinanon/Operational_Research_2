@@ -13,7 +13,7 @@
 
 #include <cplex.h>
 
-#define VERBOSE				    10		// printing level  (=10 only incumbent, =20 little output, =50-60 good, =70 verbose, >=100 cplex log)
+#define VERBOSE				    50		// printing level  (=10 only incumbent, =20 little output, =50-60 good, =70 verbose, >=100 cplex log)
 #define CSVOUT					1
 
 //hard-wired parameters
@@ -46,12 +46,12 @@ typedef struct {
 	double *costs;							// matrix containing all costs from any node i to any node j
 
 	// parameters 
-	int model_type; 
-	int method;
+	char *model_type; 
+	char *method;
 	double p;								// Probability to choose the best element
 	int len_rcl;							// Restricted Candidate List length
 	int refinement;
-	int meta;
+	char *meta;
 	int kick;
 	int population;							//number of max population for genetic algorithm
 	int nrand;
@@ -116,6 +116,7 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 
 
 // io_utils.c
+void check_feasibility(instance *inst);
 void plot_best_sol(instance *inst);
 void plot_best_sol_old(instance *inst);
 void plot_points(instance *inst);
