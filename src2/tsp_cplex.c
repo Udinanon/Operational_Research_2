@@ -43,7 +43,7 @@ int TSPopt2(instance *inst)
 	int ncols = CPXgetnumcols(env, lp);
 	inst->ncols = ncols;
 
-	double *xstar = (double *) calloc(ncols, sizeof(double));
+	double *xstar;
 
 
 	if(strncmp(inst->method, "Basic", 5) == 0){											// Benders' Loop method
@@ -110,7 +110,6 @@ int TSPopt2(instance *inst)
 				{
 					for (int j = i + 1; j < inst->nnodes; j++)
 					{
-
 						if (xstar[xpos(i, j, inst)] > 0.5) printf("  ... x(%3d,%3d) = 1\n", i + 1, j + 1); // x is in the solution if equal to 1
 
 					}//for
@@ -119,6 +118,8 @@ int TSPopt2(instance *inst)
 			//compute the number of components and populate succ and comp 
 			int* succ = (int*)malloc(inst->nnodes * sizeof(int)); // array with successors
 			int* comp = (int*)malloc(inst->nnodes * sizeof(int)); // array with component numbers for each node
+			inst->succ = (int*)malloc(inst->nnodes * sizeof(int));
+			inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
 			int ncomp;											  //number of separate subtours
 			build_sol(xstar, inst, succ, comp, &ncomp);
 
@@ -127,7 +128,7 @@ int TSPopt2(instance *inst)
 				//patchingHeuristic(inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
 				//two_opt(inst->succ, INFINITY, inst);
 				patchingHeuristicUpdate(env, lp, succ, comp, inst->nnodes, ncomp, inst);
-				int cost = calculate_succ_cost(inst->succ, inst);
+				int cost = calculate_succ_cost(succ, inst);
 				if(cost < ub){
 					ub = cost;
 					inst->ncomp = ncomp;
@@ -148,7 +149,6 @@ int TSPopt2(instance *inst)
 				break;
 			}
 			printf("LowerBound: %f; UpperBound: %f\n", lb, ub);
-			free(xstar);
 			free(succ);
 			free(comp);
 			//printf("Ellapsed time: %f\n", (second() - inst->t_start));
@@ -158,45 +158,47 @@ int TSPopt2(instance *inst)
 		int ncols = inst->ncols;
 
 		//inizialization
-		double* xstar = (double*)malloc(ncols * sizeof(double));	// here is my solution
-		int* succ = (int*)malloc(inst->nnodes * sizeof(int));		// array with successors
-		int* comp = (int*)malloc(inst->nnodes * sizeof(int));		// array with component numbers for each node
+		xstar = (double*)calloc(ncols, sizeof(double));	// here is my solution
+		//int* succ = (int*)calloc(inst->nnodes, sizeof(int));		// array with successors
+		int* comp = (int*)calloc(inst->nnodes, sizeof(int));		// array with component numbers for each node
+		inst->succ = (int*)calloc(inst->nnodes, sizeof(int));
+		inst->comp = (int*)calloc(inst->nnodes, sizeof(int));
 		int ncomp;													// number of separate subtours
 
 		if(CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst)) print_error("CPXcallbacksetfunc() error");
 		
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
+		
 		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
-		double* xheu = (double*)malloc(ncols * sizeof(double));
+		double* xheu = (double*)calloc(ncols, sizeof(double));
 		for (int i = 0; i < ncols; i++) xheu[i] = 0.0;								//initialize xheu to all zeros
-		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, succ[i], inst)] = 1.0;	//set solution edges to one
-		int* ind = (int*)malloc(ncols * sizeof(int));
+		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, inst->succ[i], inst)] = 1.0;	//set solution edges to one
+		int* ind = (int*)calloc(ncols, sizeof(int));
 		for (int i = 0; i < ncols; i++) ind[i] = i; //indices
-		int effortlevel = CPX_MIPSTART_NOCHECK; //cplex don't check if the incumbent solution is feasible
+		int effortlevel = CPX_MIPSTART_NOCHECK; //cplex doesn't check if the incumbent solution is feasible
 		int beg = 0;
 
 		//provide to cplex an incumbent solution
 		if (CPXaddmipstarts(env, lp, 1, ncols, &beg, ind, xheu, &effortlevel, NULL)) print_error("CPXaddmipstarts() error");
 		free(ind);
 		free(xheu);
-
 		error = CPXmipopt(env,lp);
 		if ( error ) 
 		{
 			printf("CPX error code %d\n", error);
 			print_error("CPXmipopt() error"); 
 		}
-		if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");
+		if ( CPXgetx(env, lp, xstar, 0, ncols-1) )
+		{
+			print_error("CPXgetx() error");
+		}
 		else {
-			build_sol(xstar, inst, succ, comp, &ncomp);
-			for (int k = 0; k < inst->nnodes; k++){
-				inst->succ[k] = succ[k];
-				inst->comp[k] = comp[k];
-				}
+			build_sol(xstar, inst, inst->succ, inst->comp, &ncomp);
+			
 			inst->ncomp = ncomp;
 		}//if-else
-		free(succ);
-		free(xstar);
+		
+		//free(succ);
 		free(comp);
 		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 	}else if(strncmp(inst->method, "Hard", 4) == 0){									// Math-Heuristic Hard-Fixing
@@ -206,6 +208,8 @@ int TSPopt2(instance *inst)
 		ncols = CPXgetnumcols(env, lp);
 		int* succ = (int*)malloc(inst->nnodes * sizeof(int));		// array with successors
 		int* comp = (int*)malloc(inst->nnodes * sizeof(int));		// array with component numbers for each node
+		inst->succ = (int*)malloc(inst->nnodes * sizeof(int));
+		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
 		int ncomp;													// number of separate subtours
 		double* xheu = (double*)malloc(ncols * sizeof(double));
 		for (int i = 0; i < ncols; i++) xheu[i] = 0.0;								//initialize xheu to all zeros
@@ -238,7 +242,11 @@ int TSPopt2(instance *inst)
 				int current_cost = calculate_succ_cost(inst->succ, inst);
 				if (current_cost < 0.9999 * best_cost) {
 					best_cost = current_cost;
-					for (int k = 0; k < inst->nnodes; k++) inst->succ[k] = succ[k];
+					for (int k = 0; k < inst->nnodes; k++)
+					{
+						inst->succ[k] = succ[k];
+						inst->comp[k] = comp[k];
+					}
 			}
 			}
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
@@ -266,6 +274,8 @@ int TSPopt2(instance *inst)
 		int n = inst->nnodes;
 		int* succ = (int*)malloc(inst->nnodes * sizeof(int));		// array with successors
 		int* comp = (int*)malloc(inst->nnodes * sizeof(int));		// array with component numbers for each node
+		inst->succ = (int*)malloc(inst->nnodes * sizeof(int));
+		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
 		int ncomp;		
 		int* ind = (int*)malloc(ncols * sizeof(int));
 		for (int i = 0; i < ncols; i++) ind[i] = i;
@@ -323,7 +333,6 @@ int TSPopt2(instance *inst)
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 
 			best_cost = current_cost;
-        	printf("CPLEX Total cost: %lf\n", best_cost);
 
 			// Delete last row containing local branching constraint
 			int nrows = CPXgetnumrows(env, lp);
@@ -335,9 +344,10 @@ int TSPopt2(instance *inst)
 			
 		}while((second()-inst->t_start) < inst->timelimit);
 
-		free(xstar);
 		free(xh);
 		free(ind);
+		free(succ);
+		free(comp);
 	}
 
 
@@ -370,7 +380,10 @@ int TSPopt2(instance *inst)
 int xpos(int i, int j, instance *inst)      // to be verified                                           
 /***************************************************************************************************************************/
 { 
-	if ( i == j ) print_error(" i == j in xpos" );
+	if ( i == j ){
+		printf("warning: %d\n", i);
+		print_error(" i == j in xpos" );
+	}
 	if ( i > j ) return xpos(j,i,inst);
 	int pos = i * inst->nnodes + j - (( i + 1 ) * ( i + 2 )) / 2;
 	return pos;
@@ -529,28 +542,31 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	//... if xstart is infeasible, find a violated cut and store it in the usual Cplex's data structute (rhs, sense, nnz, index and value)
 	int ncomp = 10;
 
-	int* succ = (int*)malloc(inst->nnodes * sizeof(int)); // array with successors
-	int* comp = (int*)malloc(inst->nnodes * sizeof(int)); // array with component numbers for each node
+	int* comp = (int*)calloc(inst->nnodes, sizeof(int)); // array with component numbers for each node
 	int *a;
 	calculateComponents(&a, &comp, &ncomp, xstar, inst);
 		//printf("callback, non optimal, %d components\n", ncomp);
-	
+
 	if(ncomp>1){
 		// Add SEC's
 		for(int k=0; k<ncomp; k++){
 			addOneCompSec(NULL, NULL, comp, k, context, inst);
-			//printf("adding component %d/%d components\n", k, ncomp);
+			//printf("adding component %d/%d components\n", k+1, ncomp);
 		}
 		// Patching heuristic
 		if(inst->patch){
+			free(comp);
 			do{
+				//printf("%d\n", ncomp);
 				calculateComponents(&a, &comp, &ncomp, xstar, inst);
-				patchingHeuristicUpdate(env, lp, succ, comp, inst->nnodes, inst->ncomp, inst);
+				printf("ATTENZIONE\n");
+				patchingHeuristicUpdate(env, lp, a, comp, inst->nnodes, ncomp, inst);
+				free(comp);
 				} while(ncomp>1);
 			}
 		}
 
-	double objheu = calculate_succ_cost(succ, inst);
+	double objheu = calculate_succ_cost(a, inst);
 	incumbent = CPX_INFBOUND;
 	CPXcallbackgetinfodbl(context, CPXCALLBACKINFO_BEST_SOL, &incumbent);
 	//Post the solution to CPLEX if with no subtours
@@ -558,12 +574,12 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 		double* xheu = (double*)malloc(inst->ncols * sizeof(double));
 		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
 		for (int i = 0; i < inst->ncols; i++) xheu[i] = 0.0;							//initialize xheu to all zeros
-		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, succ[i], inst)] = 1.0;	//set solution edges to one
+		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, a[i], inst)] = 1.0;	//set solution edges to one
 		int* ind = (int*)malloc(inst->ncols * sizeof(int));
 		for (int j = 0; j < inst->ncols; j++) ind[j] = j;
 
-		two_opt(succ, inst->timelimit, inst);
-		if (CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, calculate_succ_cost(succ, inst), CPXCALLBACKSOLUTION_NOCHECK)) print_error("CPXcallbackpostheursoln() error");
+		two_opt(a, inst->timelimit, inst);
+		if (CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, calculate_succ_cost(a, inst), CPXCALLBACKSOLUTION_NOCHECK)) print_error("CPXcallbackpostheursoln() error");
 
 		//free memory
 		free(ind);
@@ -571,7 +587,6 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	}
 	free(a);
 	free(comp);
-	free(succ);
 	free(xstar); 
 	return 0; 
 }
@@ -611,6 +626,8 @@ void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCA
 	}
 	int izero = 0;
 	sprintf(cname[0], "sec");
+	printf("fin qui tutto bene\n");
+	printf("nnz è %d\n, rhs è %f\n,sense è %s\n,izero è %d\n,index è %d\n,value è %f\n,cname è %s\n", nnz, rhs, &sense, izero, *index, *value, cname[0]);
 	if(context == NULL){
 		if ( CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]) ) print_error("CPXaddrows(): error 1");
 	}else{
@@ -697,7 +714,7 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 	comp = comp;
 	*ncomp = component;
 }
-
+/*
 // Slide 07; 22-Apr-2022
 void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst){
 	for(int k=0; k<ncomp-1; k++){
@@ -739,11 +756,16 @@ void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *in
 		}
 		comp[next] = comp[a];
 	}
-}
+}*/
 
 
 // Slide 07; 22-Apr-2022
 void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst){
+	for (int i = 0; i < inst->nnodes; i++){
+					if (( comp)[i] != (comp)[(succ)[i]])
+					printf("ATTENTION: node %d is in comp %d, its successor is %d which is in comp %d\n", i, ( comp)[i], (succ)[i], (comp)[(succ)[i]]);
+
+				}
 	for(int k=0; k<ncomp-1; k++){
 		int a, next_a;
 		int b, next_b;
@@ -764,6 +786,16 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 				}
 			}
 		}
+		/*printf("%d has component %d\n",a, comp[a]);
+		printf("%d has component %d\n",b, comp[b]);
+		printf("%d has component %d\n",next_b, comp[next_b]);
+		printf("%d has component %d\n",next_a, comp[next_a]);
+		printf("%d has component %d\n",succ[next_b], comp[succ[next_b]]);
+		printf("a considered is: %d\n", a);
+		printf("b considered is: %d\n", b);
+		printf("succ[a], prev considered is: %d\n", next_b);
+		printf("succ[b] considered is: %d\n", next_a);
+		printf("succ[succ[b]] considered is: %d\n", succ[next_b]);*/
 		// Merge 2 components and keep the minimum which is on 'a' since "if(comp[i] >= comp[j]) continue;" -> comp[a] < comp[b]
 		succ[a] = next_b;
 		succ[b] = next_a;
@@ -772,7 +804,12 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 		int next = succ[prev];
 		comp[prev] = comp[a];
 		int counter = 0;
+		//printf(":%d\n", b);
+		//for(int i = 0; i < inst->nnodes; i++){
+			//printf("%d has successor: %d\n", i, (succ)[i]);}
 		while(succ[prev] != b){
+			//printf("prev: %d\n", prev);
+			//printf(":%d\n", succ[prev]);
 			comp[next] = comp[a];
 			prev = next;
 			next = succ[next];
@@ -781,8 +818,15 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 			}
 			counter ++;
 		}
+		//printf("%d\n",comp[next]);
 		comp[next] = comp[a];
+		//printf(":%d\n", comp[next]);
 		if(k>=(ncomp-2)) continue;
+		/*for(int i = 0; i < inst->nnodes; i++)
+		{
+			printf("%d\n",comp[a]);
+		}*/
+		printf("STA PER CRASHARE\n");
 		// Add SEC's
 		addOneCompSec(env, lp, comp, comp[a], NULL, inst);
 	}
@@ -797,7 +841,6 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *ncomp) // build succ() and comp() wrt xstar()...
 /*********************************************************************************************************************************/
 {   
-
 #ifdef DEBUG
 	int *degree = (int *) calloc(inst->nnodes, sizeof(int));
 	for ( int i = 0; i < inst->nnodes; i++ )
@@ -805,7 +848,10 @@ void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *n
 		for ( int j = i+1; j < inst->nnodes; j++ )
 		{
 			int k = xpos(i,j,inst);
-			if (( fabs(xstar[k]) > EPS && fabs(xstar[k]-1.0)) > EPS ) print_error(" wrong xstar in build_sol()");
+			if ((fabs(xstar[k]) > EPS && fabs(xstar[k]-1.0) > EPS))
+			{
+				print_error(" wrong xstar in build_sol()");
+			}
 			if ( xstar[k] > 0.5 ) 
 			{
 				++degree[i];

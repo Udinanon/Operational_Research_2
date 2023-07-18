@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	compute_costs(&inst);	//compute all costs-distances between nodes
 
 	if ( TSPopt(&inst) ) print_error(" error within TSPopt()");	//resolve the instsance
-	double t2 = second(); 
+	double t2 = second();
 	check_feasibility(&inst);
 	if(inst.plot == 1){
     	plot_best_sol(&inst);

@@ -97,6 +97,7 @@ void check_feasibility(instance *inst){	//checker
 				printf("Printing last node");
 			}
 			else{
+				printf("%d",prev);
 				print_error("Found inner cycle, not feasible solution!");
 			}
 		}

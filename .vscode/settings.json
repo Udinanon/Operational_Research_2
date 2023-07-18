@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "limits": "c",
-        "tsp.h": "c"
+        "tsp.h": "c",
+        "cmath": "c"
     },
     "cmake.sourceDirectory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2"
 }
