@@ -542,7 +542,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	//... if xstart is infeasible, find a violated cut and store it in the usual Cplex's data structute (rhs, sense, nnz, index and value)
 	int ncomp = 10;
 
-	int* comp = (int*)calloc(inst->nnodes, sizeof(int)); // array with component numbers for each node
+	int* comp; // array with component numbers for each node
 	int *a;
 	calculateComponents(&a, &comp, &ncomp, xstar, inst);
 		//printf("callback, non optimal, %d components\n", ncomp);
@@ -624,6 +624,9 @@ void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCA
 			nnz ++;
 		}
 	}
+	index = realloc(index, nnz * sizeof(int));
+	value = realloc(value, nnz * sizeof(int));
+	printf("%d vediamo\n", index[nnz-1]);
 	int izero = 0;
 	sprintf(cname[0], "sec");
 	printf("fin qui tutto bene\n");
