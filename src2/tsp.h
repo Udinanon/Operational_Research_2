@@ -24,6 +24,8 @@
 //for simulated annealing only
 #define TEMPERATURE_COEFF 0.99
 
+#define FREE(ptr) do { if (ptr) { free(ptr); (ptr) = NULL; } (ptr) = NULL; } while(0)
+
 //weight types
 
 typedef enum
@@ -40,7 +42,8 @@ typedef enum
 typedef struct {   
 	
 	//input data
-	int nnodes; 	
+	int nnodes;
+	weight_type weight_type; 	
 	double *xcoord;
 	double *ycoord;
 	double *costs;							// matrix containing all costs from any node i to any node j
@@ -65,7 +68,6 @@ typedef struct {
 	int ncols;
 	int post;
 	int patch;
-	weight_type weight_type;
 
 	//global data
 	int *succ;								// successors

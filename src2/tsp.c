@@ -125,7 +125,7 @@ double dist(int i, int j, instance *inst)
         return r;
     }
     else{
-        if(inst->weight_type != EUC_2D) printf("Not implemented; approximate with Euc2D\n");
+        if(inst->weight_type != EUC_2D) inst->weight_type = EUC_2D;
         double dx = inst->xcoord[i] - inst->xcoord[j];
         double dy = inst->ycoord[i] - inst->ycoord[j]; 
         if ( !inst->integer_costs ) return sqrt(dx*dx+dy*dy);

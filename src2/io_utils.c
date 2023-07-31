@@ -23,6 +23,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	inst->plot = 1;
 	inst->post = 0;
 	inst->patch = 0;
+	inst->path = NULL;
+	inst->comp = NULL;
+	inst->succ = NULL;
+	inst->costs = NULL;
+	inst->xcoord = NULL;
+	inst->ycoord = NULL;
 
     int help = 0; if ( argc < 1 ) help = 1;	
 	for ( int i = 1; i < argc; i++ ) 
@@ -111,7 +117,13 @@ void check_feasibility(instance *inst){	//checker
 
 
 void plot_best_sol(instance *inst){
-	FILE *fout = fopen("../plot/bs2.dat", "w");
+	char output [1000];
+	strcpy(output, "../plot/");
+	strcat(output, inst->input_file);
+	strcat(output,"_");
+	strcat(output, inst->model_type);
+	strcat(output,"_bs2.dat");
+	FILE *fout = fopen(output, "w");
 	if(fout == NULL) print_error(" can't write to output file");
 
 	int prev = 0;
@@ -128,11 +140,11 @@ void plot_best_sol(instance *inst){
 		if(unv_nodes[prev] == 1){
 			if(len_unv_nodes==0 && prev == 0)
 			{
-				printf("Printing last node");
+				//printf("Printing last node");
 			}
 			else{
 				print_error("Found inner cycle, not feasible solution!");
-				if(len_unv_nodes==0 && prev != 0)
+				/*if(len_unv_nodes==0 && prev != 0)
 				{
 					prev = 0;
 				}
@@ -141,7 +153,7 @@ void plot_best_sol(instance *inst){
 					for(int i=0; (i<inst->nnodes) && (prev == -1); i++){
 						if(unv_nodes[i] == 0) prev = i;
 					}
-				}
+				}*/
 			}
 			fprintf(fout, "%lf %lf 1\r\n", inst->xcoord[prev], inst->ycoord[prev]);
 			succ = inst->succ[prev];
@@ -158,11 +170,25 @@ void plot_best_sol(instance *inst){
 		len_unv_nodes --;
 	}
 	fclose(fout);
+	FILE *ff = fopen(output, "r");
+	FILE *f = fopen("../plot/bs2.dat", "w");
+	char ch = fgetc(ff);
+	while (ch != EOF)
+    {
+        /* Write to destination file */
+        fputc(ch, f);
+
+        /* Read next character from source file */
+        ch = fgetc(ff);
+    }
+	fclose(ff);
+	fclose(f);
 
 	system("gnuplot ../plot/settings_bs2.txt");
 }
 
 
+/**
 void plot_best_sol_old(instance *inst){
 	FILE *fout = fopen("../plot/bs.dat", "w");
 	if(fout == NULL) print_error(" can't write to output file");
@@ -179,7 +205,7 @@ void plot_best_sol_old(instance *inst){
 	fclose(fout);
 
 	system("gnuplot ../plot/settings_bs.txt");
-}
+}*/
 
 
 void plot_points(instance *inst){
@@ -334,16 +360,10 @@ void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(N
 
 void delete_instance(instance* inst)
 {
-	free(inst->xcoord);
-	free(inst->ycoord);
-	free(inst->costs);
-	free(inst->succ);
-	free(inst->path);	
-	free(inst->comp);
-	free(inst->best_sol);
-	free(inst->model_type);
-	free(inst->method);
-	free(inst->meta);
-	free(inst);
-	return;
+	FREE(inst->xcoord);
+	FREE(inst->ycoord);
+	FREE(inst->costs);
+	FREE(inst->succ);
+	FREE(inst->path);
+	FREE(inst->comp);
 }

@@ -16,11 +16,12 @@ int main(int argc, char **argv)
 	parse_command_line(argc,argv, &inst);     
 	
 	// //printf(" file %s has %d non-empty lines\n", inst.input_file, number_of_nonempty_lines(inst.input_file)); exit(1);
-	double *xc;
-	double *yc;
 	if(strcmp(inst.input_file, "NULL") != 0){
 		read_input(&inst);
 	}else if(inst.nrand != 0){
+		srand(1);
+		snprintf(inst.input_file, sizeof(inst.input_file), "%d", rand() % INT_MAX);
+		printf("%s\n", inst.input_file);
 		generate_random_points(&inst.xcoord, &inst.ycoord, inst.nrand, inst.randomseed, 1000, 1000);
 		inst.nnodes = inst.nrand;
 	}
@@ -39,8 +40,6 @@ int main(int argc, char **argv)
 		printf("... TSP problem solved in %lf sec.s\n", t2-t1);  
 	}
 	
-	free(xc);
-	free(yc);
 	delete_instance(&inst);
 	return 0; 
 }

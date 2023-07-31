@@ -227,7 +227,7 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
         printf("CSVOUT_nodes%d_seed%d;%f;\n", inst->nnodes, inst->randomseed, calculate_succ_cost((*out_succ), inst));
     }
 
-
+    inst->best_sol = &best_sol_cost;
     free(rcl);
     free(rcl_prev);
     free(unc_nodes_rcl);
@@ -312,7 +312,7 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
         double sol_cost = calculate_succ_cost((*succ), inst);
         if(sol_cost < best_sol_cost){
             for(int i=0; i<inst->nnodes; i++) best_sol[i] = (*succ)[i];
-            best_sol_cost = calculate_succ_cost((*succ), inst);
+            best_sol_cost = sol_cost;
         }
         if(VERBOSE >= 50) printf("Solution cost: %f; Best solution cost: %f\n", sol_cost, best_sol_cost);
 
@@ -333,6 +333,7 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
         printf("CSVOUT_nodes%d_seed%d;%f;\n", inst->nnodes, inst->randomseed, calculate_succ_cost((*succ), inst));
     }
 
+    inst->best_sol = &best_sol_cost;
     free(unc_nodes);
     free(best_sol);
     free(rcl);
