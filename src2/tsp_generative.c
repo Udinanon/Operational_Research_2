@@ -92,6 +92,7 @@ int extra_mileage_old(instance *inst){
 
 int extra_mileage(int **out_succ, double p, int len_rcl, double t_limit, instance *inst){
 
+
     //Choose 2 starting points (max cost)
     double max_cost = 0;
     int temp_i, temp_j, temp_k;
@@ -141,6 +142,7 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                 counter ++;
             }
         }
+        
         if(counter != len_unc_nodes){
             print_error(" error in extra_mileage_compute(), path is shorter than the given len_path");
             return 1;
@@ -202,6 +204,7 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                 unc_nodes[rcl[n]] = unc_nodes[len_unc_nodes-1];
 
                 len_unc_nodes --;
+                
             }else{
                 print_error(" unexpected error on function extra_mileage_compute!");
             }
@@ -209,8 +212,8 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
         double sol_cost = calculate_succ_cost(succ, inst);
         if(sol_cost < best_sol_cost){
             for(int i=0; i<inst->nnodes; i++) (*out_succ)[i] = succ[i];
+            best_sol_cost = sol_cost;
         }
-        best_sol_cost = calculate_succ_cost((*out_succ), inst);
         if(VERBOSE >= 50) printf("Solution cost: %f; Best solution cost: %f\n", sol_cost, best_sol_cost);
     }while((second()-t_start) < t_limit);
     
@@ -255,9 +258,10 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
     int *unc_nodes_rcl = (int *) calloc(inst->nnodes-1, sizeof(int));           // Uncovered nodes flag for Restricted Candidate List
 
     do{
-        for(int i=1; i<inst->nnodes; i++) unc_nodes[i-1] = i;
+        int starting_node = rand() % inst->nnodes;
+        for(int i=1; i<inst->nnodes; i++) unc_nodes[i-1] = (i+starting_node) % inst->nnodes;
         for(int i=0; i<inst->nnodes; i++) (*succ)[i] = 0;
-        int current_node = 0;
+        int current_node = starting_node;
         int next_node;
         double next_node_cost;
         int len_unc_nodes = inst->nnodes - 1;
@@ -301,7 +305,7 @@ int greedy(int **succ, double p, int len_rcl, double t_limit, instance *inst){
 
             // At the end add the last connection between first and last nodes.
             if(len_unc_nodes == 0){
-                (*succ)[current_node] = 0;
+                (*succ)[current_node] = starting_node;
             }
 
             if(VERBOSE >= 90) printf("Adding node %d to succ with cost: %lf\n", current_node, next_node_cost);
