@@ -47,20 +47,21 @@ int TSPopt(instance *inst){
             extra_mileage(&inst->succ, inst->p, inst->len_rcl, inst->timelimit, inst);
         }
     }
+    else if(strncmp(inst->model_type, "Genetic", 7) == 0){                  //Genetic algorithm
+            error = genetic(inst);
+            if(error) return error;
+        }
     else if(strncmp(inst->model_type, "Cplex", 5) == 0) TSPopt2(inst);    //cplex
 
     if(inst->refinement == 1){
         if(strncmp(inst->meta, "2-OPT", 5) == 0){                       //2-OPT algorithm ONLY
-            two_opt(inst->succ, INFINITY, inst);
+            two_opt(inst->succ, inst->ref_timelimit, inst);
         }else if(strncmp(inst->meta, "TABU", 4) == 0){                  //TABU search algorithm
-            two_opt_tabu(inst, inst->nnodes/10, inst->nnodes/2, inst->timelimit);
+            two_opt_tabu(inst, inst->nnodes/10, inst->nnodes/2, inst->ref_timelimit);
         }else if(strncmp(inst->meta, "VNS", 3) == 0){                  //VNS algorithm
             if(inst->kick != -1){
-                two_opt_vns(inst, inst->kick, inst->timelimit);
+                two_opt_vns(inst, inst->kick, inst->ref_timelimit);
             }
-        }else if(strncmp(inst->meta, "Genetic", 7) == 0){                  //Genetic algorithm
-            error = genetic(inst);
-            if(error) return error;
         }else if(strncmp(inst->meta, "Simulated", 9) == 0){                   //Simulated annealing
             simulated_annealing(inst);
         }
@@ -218,12 +219,12 @@ int two_opt_tabu(instance *inst, int min_tenure, int max_tenure, double time_lim
 
     
     if(VERBOSE >= 40){
-        printf("Best solution found with EXTRA-MILEAGE algorithm:\n");
+        printf("Best solution found with TABU algorithm:\n");
         for(int i=0; i<inst->nnodes; i++) printf("|%d=%d| ",i, inst->succ[i]);
         printf("\n");
     }
     if(VERBOSE >= 30){
-        printf("EXTRA-MILEAGE Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
+        printf("TABU Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
     }
 
     free(best_succ);
@@ -308,7 +309,7 @@ int kick(instance *inst, int n_kick){
         counter2 ++;
         node = path[counter2];
         new_path[counter] = node;
-        if(VERBOSE >= 100) printf("last_node2: %d\n",node);
+        if(VERBOSE >= 100) printf("last_node: %d\n",node);
     }
     //copia dei blocchi in mezzo
     for(int i=n_ordered-2; i>=1; i--){
@@ -428,16 +429,14 @@ int two_opt_vns(instance *inst, int n_kick, double time_limit){
 
 int simulated_annealing(instance *inst)
 {
-    if(inst->timelimit == -1){
+    if(inst->ref_timelimit == -1){
         print_error(" time limit not set (use 'tsp -h' for help)");
     }
     double t_start = second();
     double best_cost = INFINITY;
     int *best_succ = (int *) calloc(inst->nnodes, sizeof(int));
-    int* startpath;
-    generate_random_path(&startpath, inst);
-    double temperature = calculate_path_cost(startpath, inst)/10;
-    path_to_succ(startpath, inst->succ, inst->nnodes);
+    double temperature = *inst->best_sol/10;
+    
     do{
         int i = random01() * (inst->nnodes - 1);
 		int j = random01() * (inst->nnodes - 1);
@@ -465,10 +464,10 @@ int simulated_annealing(instance *inst)
                 // printf("temp_j: %d\n", temp_j);
             }
             inst->succ[temp] = prev;
-            break;
         }
         else{//worsening move
             double prob = exp(-delta/temperature);
+            prob = 0;
             temperature = TEMPERATURE_COEFF*temperature;
             if(random01() <= prob){
                 //Change connection between nodes
@@ -491,24 +490,30 @@ int simulated_annealing(instance *inst)
                 inst->succ[temp] = prev;
             }
         }
-        int current_cost = calculate_succ_cost(inst->succ, inst);
+        double current_cost = calculate_succ_cost(inst->succ, inst);
         if(best_cost>current_cost){
             for(int i=0; i<inst->nnodes; i++) best_succ[i] = inst->succ[i];
             best_cost = current_cost;
         }
-    }while((second()-t_start) < inst->timelimit);
-
+    }while((second()-t_start) < inst->ref_timelimit);
+    
     for(int i=0; i<inst->nnodes; i++) inst->succ[i] = best_succ[i];
-    inst->best_sol = &best_cost;    
+    inst->best_sol = &best_cost;
+    if(!inst->path) inst->path = calloc(inst->nnodes, sizeof(int));
     succ_to_path(inst->succ, inst->path);
 
+    printf("Best solution found with Simulated Annealing algorithm:\n");
+    for(int i=0; i<inst->nnodes; i++) printf("|%d=%d| ",i, inst->succ[i]);
+    printf("\n");
+    printf("Total cost: %lf\n", best_cost);
+
+
     free(best_succ);
-    free(startpath);
     return 0;
 }
 
 int genetic(instance *inst){
-    if(inst->timelimit == -1){
+    if(inst->ref_timelimit == -1){
         print_error(" time limit not set (use 'tsp -h' for help)");
     }
     if(inst->population == -1){

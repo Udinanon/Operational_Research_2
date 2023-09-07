@@ -18,6 +18,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	inst->randomseed = 0; 
 	inst->num_threads = 0;
 	inst->timelimit = INFINITY; 
+	inst->ref_timelimit = 0; 
 	inst->nrand = 0;
 	inst->integer_costs = 0;
 	inst->plot = 1;
@@ -37,8 +38,9 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		if ( strcmp(argv[i],"-f") == 0 ) { strcpy(inst->input_file,argv[++i]); continue; } 				// input file
 		// if ( strcmp(argv[i],"-out_file") == 0 ) { strcpy(inst->output_file,argv[++i]); continue; } 		// output file
 		// if ( strcmp(argv[i],"-of") == 0 ) { strcpy(inst->output_file,argv[++i]); continue; } 			// output file
-		if ( strcmp(argv[i],"-time_limit") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }		// total time limit
-		if ( strcmp(argv[i],"-tl") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }				// total time limit
+		if ( strcmp(argv[i],"-time_limit") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }		// main time limit
+		if ( strcmp(argv[i],"-tl") == 0 ) { inst->timelimit = atof(argv[++i]); continue; }				// main time limit
+		if ( strcmp(argv[i],"-reftl") == 0 ) { inst->ref_timelimit = atof(argv[++i]); continue; }				// refinement time limit
 		if ( strcmp(argv[i],"-model_type") == 0 ) { inst->model_type = argv[++i]; continue; } 	// model type
 		if ( strcmp(argv[i],"-model") == 0 ) { inst->model_type = argv[++i]; continue; } 			// model type
 		if ( strcmp(argv[i],"-method") == 0 ) { inst->method = argv[++i]; continue; } 			// method for cplex
@@ -65,6 +67,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("\n\navailable parameters (vers. 16-may-2015) --------------------------------------------------\n");
 		printf("-file || -f %s\n", inst->input_file); 
 		printf("-time_limit || -tl %lf\n", inst->timelimit); 
+		printf("-reftl %lf\n", inst->ref_timelimit); 
 		printf("-model_type || -model %s\n", inst->model_type); 
 		printf("-method %s\n", inst->method); 
 		printf("-p %f\n", inst->p); 

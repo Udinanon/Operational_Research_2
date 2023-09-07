@@ -22,7 +22,7 @@
 #define TICKS_PER_SECOND 	  1000.0  	// cplex's ticks on Intel Core i7 quadcore @2.3GHZ
 
 //for simulated annealing only
-#define TEMPERATURE_COEFF 0.99
+#define TEMPERATURE_COEFF 0.9
 
 #define FREE(ptr) do { if (ptr) { free(ptr); (ptr) = NULL; } (ptr) = NULL; } while(0)
 
@@ -60,7 +60,8 @@ typedef struct {
 	int nrand;
 	int randomseed;
 	int num_threads;
-	double timelimit;						// overall time limit, in sec.s
+	double timelimit;						// main time limit, in sec.s
+	double ref_timelimit;					// time limit for refinement
 	char input_file[1000];		  			// input file
 	int integer_costs;
 	int plot;
