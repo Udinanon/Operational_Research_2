@@ -15,10 +15,13 @@ dashes = ['-',  # solid line
 	'-.',  # dash-dot line
 	':',  # dotted line
 	'-',
-	'--']
+	'--',
+	'-.',
+	':',
+	'-']
 
-markers = ['+', 'x', 's', '^', 'o', 'd']
-colors = ['r', 'b', 'y', 'g', 'm', 'c']
+markers = ['+', 'x', 's', '^', 'o', 'd', 'v', '*', 'p']
+colors = ['r', 'b', 'y', 'g', 'm', 'c', 'k', 'r', 'b', 'y']
 
 
 class CmdLineParser(object):
@@ -119,7 +122,7 @@ def main():
 		else:
 			plt.plot(ratio[:, j], y, **options)
 	plt.axis([1, opt.maxratio, 0, 1])
-	plt.legend(loc='lower right')
+	#plt.legend(loc='lower right')
 	if opt.plottitle is not None:
 		plt.title(opt.plottitle)
 	plt.xlabel(opt.xlabel)

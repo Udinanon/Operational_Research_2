@@ -440,7 +440,7 @@ int simulated_annealing(instance *inst)
     do{
         int i = random01() * (inst->nnodes - 1);
 		int j = random01() * (inst->nnodes - 1);
-		while (i == j) j = random01() * (inst->nnodes - 1); //select two random nodes
+		while (i == j || inst->succ[i] == j || inst->succ[j] == i) j = random01() * (inst->nnodes - 1); //select two random nodes
         double delta = (cost(i,j,inst) + cost(inst->succ[i], inst->succ[j], inst)) - (cost(i, inst->succ[i], inst) + cost(j, inst->succ[j], inst));
         if(VERBOSE >= 80){
             printf("delta: %f\n",delta);
@@ -467,7 +467,6 @@ int simulated_annealing(instance *inst)
         }
         else{//worsening move
             double prob = exp(-delta/temperature);
-            prob = 0;
             temperature = TEMPERATURE_COEFF*temperature;
             if(random01() <= prob){
                 //Change connection between nodes

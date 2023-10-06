@@ -115,7 +115,6 @@ int extra_mileage(int **out_succ, double p, int len_rcl, double t_limit, instanc
 
 // Requires an instance with a path computed and it will
 // connect all unconnected nodes
-// TODO: pensare a come migliorare il ciclo per non creare nuovamente ogni volta la rcl
 int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int len_rcl, double t_limit, instance *inst){
     
     double t_start = second();
