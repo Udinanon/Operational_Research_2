@@ -127,7 +127,7 @@ int TSPopt2(instance *inst)
 			print_error("CPXmipopt() error"); 
 		}
 		if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");	
-		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
+		calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 	}else if(mode == 3){									// Math-Heuristic
 		
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
