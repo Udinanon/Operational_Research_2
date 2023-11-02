@@ -9,7 +9,7 @@ void fixLowerBound(CPXENVptr env, CPXLPptr lp, int k, int succ_k, instance *inst
 void freeLowerBound(CPXENVptr env, CPXLPptr lp, int min_k, int max_k, instance *inst);
 void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst);
 void updateModel(instance *inst, CPXENVptr env, CPXLPptr lp, int ncomp, int* comp);
-void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst);
+void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst, CPXCALLBACKCONTEXTptr);
 void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst);
 int xpos(int i, int j, instance *inst);
 void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *ncomp);
@@ -98,7 +98,7 @@ int TSPopt2(instance *inst)
 			if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");
 
 			//t1 = second();
-			// calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
+			//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 			//printf("Number of components: %d\n", inst->ncomp);
 			//printf("Time to calculate connected components and succ: %f\n", (second()-t1));
 
@@ -127,7 +127,7 @@ int TSPopt2(instance *inst)
 				updateModel(inst, env, lp, ncomp, comp);
 				//patchingHeuristic(inst->succ, inst->comp, inst->nnodes, inst->ncomp, inst);
 				//two_opt(inst->succ, INFINITY, inst);
-				patchingHeuristicUpdate(env, lp, succ, comp, inst->nnodes, ncomp, inst);
+				patchingHeuristicUpdate(env, lp, succ, comp, inst->nnodes, ncomp, inst, NULL);
 				int cost = calculate_succ_cost(succ, inst);
 				if(cost < ub){
 					ub = cost;
@@ -160,7 +160,7 @@ int TSPopt2(instance *inst)
 		//inizialization
 		xstar = (double*)calloc(ncols, sizeof(double));	// here is my solution
 		//int* succ = (int*)calloc(inst->nnodes, sizeof(int));		// array with successors
-		int* comp = (int*)calloc(inst->nnodes, sizeof(int));		// array with component numbers for each node
+		//int* comp = (int*)calloc(inst->nnodes, sizeof(int));		// array with component numbers for each node
 		inst->succ = (int*)calloc(inst->nnodes, sizeof(int));
 		inst->comp = (int*)calloc(inst->nnodes, sizeof(int));
 		int ncomp;													// number of separate subtours
@@ -199,7 +199,7 @@ int TSPopt2(instance *inst)
 		}//if-else
 		
 		//free(succ);
-		free(comp);
+		//free(comp);
 		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 	}else if(strncmp(inst->method, "Hard", 4) == 0){									// Math-Heuristic Hard-Fixing
 		
@@ -377,7 +377,7 @@ int TSPopt2(instance *inst)
 }
 
 /***************************************************************************************************************************/
-int xpos(int i, int j, instance *inst)      // to be verified                                           
+int xpos(int i, int j, instance *inst)                                           
 /***************************************************************************************************************************/
 { 
 	if ( i == j ){
@@ -520,7 +520,7 @@ void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst){
 // Slide --; 4-May-2022 - CALLBACK
 static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle ) 
 { 
-
+	printf("my_callback is called\n");
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);
 	if (error) print_error("CPXopenCPLEX() error");
@@ -560,7 +560,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 				//printf("%d\n", ncomp);
 				calculateComponents(&a, &comp, &ncomp, xstar, inst);
 				printf("ATTENZIONE\n");
-				patchingHeuristicUpdate(env, lp, a, comp, inst->nnodes, ncomp, inst);
+				patchingHeuristicUpdate(env, lp, a, comp, inst->nnodes, ncomp, inst, context);
 				free(comp);
 				} while(ncomp>1);
 			}
@@ -624,14 +624,14 @@ void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCA
 			nnz ++;
 		}
 	}
-	index = realloc(index, nnz * sizeof(int));
-	value = realloc(value, nnz * sizeof(int));
-	printf("%d vediamo\n", index[nnz-1]);
 	int izero = 0;
 	sprintf(cname[0], "sec");
 	printf("fin qui tutto bene\n");
+	//for (int i = 0; i < nnz * sizeof(int); i++)
+	//printf("%d\n",index[i]);
 	printf("nnz è %d\n, rhs è %f\n,sense è %s\n,izero è %d\n,index è %d\n,value è %f\n,cname è %s\n", nnz, rhs, &sense, izero, *index, *value, cname[0]);
 	if(context == NULL){
+		printf("calling addrows\n");
 		if ( CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]) ) print_error("CPXaddrows(): error 1");
 	}else{
 		if ( CPXcallbackrejectcandidate(context, 1, nnz, &rhs, &sense, &izero, index, value) ) 
@@ -763,12 +763,12 @@ void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *in
 
 
 // Slide 07; 22-Apr-2022
-void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst){
+void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst, CPXCALLBACKCONTEXTptr context){
 	for (int i = 0; i < inst->nnodes; i++){
-					if (( comp)[i] != (comp)[(succ)[i]])
-					printf("ATTENTION: node %d is in comp %d, its successor is %d which is in comp %d\n", i, ( comp)[i], (succ)[i], (comp)[(succ)[i]]);
+			if (( comp)[i] != (comp)[(succ)[i]])
+				printf("ATTENTION: node %d is in comp %d, its successor is %d which is in comp %d\n", i, ( comp)[i], (succ)[i], (comp)[(succ)[i]]);
 
-				}
+		}
 	for(int k=0; k<ncomp-1; k++){
 		int a, next_a;
 		int b, next_b;
@@ -829,9 +829,8 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 		{
 			printf("%d\n",comp[a]);
 		}*/
-		printf("STA PER CRASHARE\n");
 		// Add SEC's
-		addOneCompSec(env, lp, comp, comp[a], NULL, inst);
+		addOneCompSec(env, lp, comp, comp[a], context, inst);
 	}
 }
 

@@ -114,7 +114,7 @@ int generate_random_path(int **out_path, instance *inst);
 // tsp_cplex.c
 int TSPopt2(instance *inst);
 void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCALLBACKCONTEXTptr context, instance *inst);
-void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst);
+void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst, CPXCALLBACKCONTEXTptr context);
 void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar, instance *inst);
 
 
