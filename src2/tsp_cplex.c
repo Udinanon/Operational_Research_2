@@ -240,7 +240,7 @@ int TSPopt2(instance *inst)
 			else{
 				build_sol(xheu, inst, succ, comp, &ncomp);
 				int current_cost = calculate_succ_cost(inst->succ, inst);
-				if (current_cost < 0.9999 * best_cost) {
+				if (current_cost < best_cost) {
 					best_cost = current_cost;
 					for (int k = 0; k < inst->nnodes; k++)
 					{
@@ -316,7 +316,7 @@ int TSPopt2(instance *inst)
 				if(best_cost < current_cost){
 				print_error(" error in local branching, prev_cost can't be lower than the new one");
 				}
-				else if (current_cost < 0.9999 * best_cost) {
+				else if (current_cost < best_cost) {
 					for (int i = 0; i < inst->nnodes; i++){
 						inst->succ[i] = succ[i];
 						inst->comp[i] = comp[i];
@@ -521,10 +521,10 @@ void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst){
 static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle ) 
 { 
 	printf("my_callback is called\n");
-	int error;
-	CPXENVptr env = CPXopenCPLEX(&error);
-	if (error) print_error("CPXopenCPLEX() error");
-	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1");
+	//int error;
+	//CPXENVptr env = CPXopenCPLEX(&error);
+	//if (error) print_error("CPXopenCPLEX() error");
+	//CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1");
 	instance* inst = (instance*) userhandle;  
 	double* xstar = (double*) malloc(inst->ncols * sizeof(double));  
 	double objval = CPX_INFBOUND; 
@@ -556,15 +556,15 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 		// Patching heuristic
 		if(inst->patch){
 			free(comp);
-			do{
-				//printf("%d\n", ncomp);
-				calculateComponents(&a, &comp, &ncomp, xstar, inst);
-				printf("ATTENZIONE\n");
-				patchingHeuristicUpdate(env, lp, a, comp, inst->nnodes, ncomp, inst, context);
-				free(comp);
-				} while(ncomp>1);
-			}
+			printf("ncomp is %d\n", ncomp);
+			calculateComponents(&a, &comp, &ncomp, xstar, inst);
+			//printf("ATTENZIONE\n");
+			patchingHeuristicUpdate(NULL, NULL, a, comp, inst->nnodes, ncomp, inst, context);
+			print_succ(a, inst->nnodes);
+			print_succ(comp, inst->nnodes);
+			printf("ncomp is %d\n", ncomp);
 		}
+	}
 
 	double objheu = calculate_succ_cost(a, inst);
 	incumbent = CPX_INFBOUND;
@@ -578,7 +578,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 		int* ind = (int*)malloc(inst->ncols * sizeof(int));
 		for (int j = 0; j < inst->ncols; j++) ind[j] = j;
 
-		two_opt(a, inst->timelimit, inst);
+		two_opt(a, inst->ref_timelimit, inst);
 		if (CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, calculate_succ_cost(a, inst), CPXCALLBACKSOLUTION_NOCHECK)) print_error("CPXcallbackpostheursoln() error");
 
 		//free memory
@@ -627,11 +627,11 @@ void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCA
 	int izero = 0;
 	sprintf(cname[0], "sec");
 	printf("fin qui tutto bene\n");
-	//for (int i = 0; i < nnz * sizeof(int); i++)
-	//printf("%d\n",index[i]);
-	printf("nnz è %d\n, rhs è %f\n,sense è %s\n,izero è %d\n,index è %d\n,value è %f\n,cname è %s\n", nnz, rhs, &sense, izero, *index, *value, cname[0]);
+	for (int i = 0; i < nnz; i++)
+		printf("index of %d is %d\n", i, index[i]);
+	//printf("nnz è %d\n, rhs è %f\n,sense è %s\n,izero è %d\n,index è %d\n,value è %f\n,cname è %s\n", nnz, rhs, &sense, izero, *index, *value, cname[0]);
 	if(context == NULL){
-		printf("calling addrows\n");
+		//printf("calling addrows\n");
 		if ( CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]) ) print_error("CPXaddrows(): error 1");
 	}else{
 		if ( CPXcallbackrejectcandidate(context, 1, nnz, &rhs, &sense, &izero, index, value) ) 
@@ -716,8 +716,11 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 	}
 	comp = comp;
 	*ncomp = component;
+	//print_succ(*succ, inst->nnodes);
+	//print_succ(*comp, inst->nnodes);
+
 }
-/*
+
 // Slide 07; 22-Apr-2022
 void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst){
 	for(int k=0; k<ncomp-1; k++){
@@ -759,7 +762,7 @@ void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *in
 		}
 		comp[next] = comp[a];
 	}
-}*/
+}
 
 
 // Slide 07; 22-Apr-2022
@@ -824,12 +827,16 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 		//printf("%d\n",comp[next]);
 		comp[next] = comp[a];
 		//printf(":%d\n", comp[next]);
+		print_succ(succ, inst->nnodes);
+		print_succ(comp, inst->nnodes);
 		if(k>=(ncomp-2)) continue;
 		/*for(int i = 0; i < inst->nnodes; i++)
 		{
 			printf("%d\n",comp[a]);
 		}*/
 		// Add SEC's
+		printf("adding a SEC\n");
+		printf("ncomp is: %d\n",ncomp);
 		addOneCompSec(env, lp, comp, comp[a], context, inst);
 	}
 }
