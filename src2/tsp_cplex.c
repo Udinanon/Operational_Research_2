@@ -211,16 +211,18 @@ int TSPopt2(instance *inst)
 		//calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 	}else if(strncmp(inst->method, "Hard", 4) == 0){									// Math-Heuristic Hard-Fixing
 		
+		xstar = (double*)calloc(ncols, sizeof(double));
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
 		double best_cost = INFINITY;
 		ncols = CPXgetnumcols(env, lp);
-		int* succ = (int*)calloc(inst->nnodes, sizeof(int));		// array with successors
-		int* comp = (int*)calloc(inst->nnodes, sizeof(int));		// array with component numbers for each node
-		inst->comp = (int*)calloc(inst->nnodes, sizeof(int));
+		printf("ncols is %d\n", ncols);
+		printf("nnodes is %d\n", inst->nnodes);
+		int* succ = (int*)malloc(inst->nnodes * sizeof(int));		// array with successors
+		int* comp = (int*)malloc(inst->nnodes * sizeof(int));		// array with component numbers for each node
+		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
 		int ncomp;													// number of separate subtours
 		double* xheu = (double*)calloc(ncols, sizeof(double));
 		for (int i = 0; i < ncols; i++) xheu[i] = 0.0;								//initialize xheu to all zeros
-		printf("%d!\n", inst->nnodes);
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			xheu[xpos(i, inst->succ[i], inst)] = 1.0;	//set solution edges to one
@@ -273,7 +275,7 @@ int TSPopt2(instance *inst)
 	}else if(strncmp(inst->method, "Local", 5) == 0){									// Local Branching
 		// Hyperparameter to set
 		int k = 30;
-		printf("qua\n");
+		xstar = (double*)calloc(ncols, sizeof(double));
 		// Find a starting solution with an heuristic:
 		greedy(&inst->succ, 1, 1, 0, inst);
 		two_opt(inst->succ, INFINITY, inst);
@@ -330,6 +332,7 @@ int TSPopt2(instance *inst)
 				print_error(" error in local branching, prev_cost can't be lower than the new one");
 				}
 				else if (current_cost < best_cost) {
+					best_cost = current_cost;
 					for (int i = 0; i < inst->nnodes; i++){
 						inst->succ[i] = succ[i];
 						inst->comp[i] = comp[i];
@@ -343,6 +346,9 @@ int TSPopt2(instance *inst)
 			int numrows = CPXgetnumrows(env, lp);
 			if (CPXdelrows(env, lp, numrows - 1, numrows - 1)) print_error("CPXdelrows(): error 1");
 
+			//printf("Attenzione!\n");
+			print_succ(succ, inst->nnodes);
+			print_comp(comp, inst->nnodes);
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 
 			best_cost = current_cost;
@@ -533,7 +539,7 @@ void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst){
 // Slide --; 4-May-2022 - CALLBACK
 static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle ) 
 { 
-	printf("my_callback is called\n");
+	//printf("my_callback is called\n");
 	//int error;
 	//CPXENVptr env = CPXopenCPLEX(&error);
 	//if (error) print_error("CPXopenCPLEX() error");
@@ -557,6 +563,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 
 	int* comp; // array with component numbers for each node
 	int *a;
+	//printf("calling calculateComponents\n");
 	calculateComponents(&a, &comp, &ncomp, xstar, inst);
 		//printf("callback, non optimal, %d components\n", ncomp);
 
@@ -720,7 +727,13 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 							}
 						}
 						//printf("nnodes:%d, prev:%d, next:%d\n", inst->nnodes, prev, next);
-						if(added == 0) print_error(" error in the transformation");
+						if(added == 0)
+						{
+							printf("sto cercando un nodo adiacente a %d\n", next);
+							print_succ(*succ, inst->nnodes);
+							print_comp(*comp, inst->nnodes);
+							print_error(" error in the transformation");
+						}
 					}
 					component ++;
 				}
@@ -897,7 +910,6 @@ void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *n
 		succ[i] = -1;
 		comp[i] = -1;
 	}
-	
 	for ( int start = 0; start < inst->nnodes; start++ )
 	{
 		if ( comp[start] >= 0 ) continue;  // node "start" was already visited, just skip it
