@@ -49,6 +49,14 @@ void print_succ(const int *succ, int len){
     printf("\n");
 }
 
+void print_comp(const int *comp, int len){
+    printf("Components:\n");
+    for(int i=0; i<len; i++){
+        printf("{%d: %d} ",i, comp[i]);
+    }
+    printf("\n");
+}
+
 void print_path(const int *path, int len){
     printf("Path:\n");
     int error = 0;

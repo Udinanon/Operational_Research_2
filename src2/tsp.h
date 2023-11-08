@@ -90,6 +90,7 @@ void generate_random_points(double **xcoord, double **ycoord, int nrand, int see
 void succ_to_path(int *succ, int *path);
 void path_to_succ(int *path, int *succ, int len);
 void print_succ(const int *succ, int len);
+void print_comp(const int *comp, int len);
 void print_path(const int *path, int len);
 double calculate_succ_cost(int *succ, instance *inst);
 double calculate_path_cost(int *path, instance *inst);
@@ -114,7 +115,7 @@ int generate_random_path(int **out_path, instance *inst);
 // tsp_cplex.c
 int TSPopt2(instance *inst);
 void addOneCompSec(CPXENVptr env, CPXLPptr lp, int *comp, int comp_number, CPXCALLBACKCONTEXTptr context, instance *inst);
-void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int ncomp, instance *inst, CPXCALLBACKCONTEXTptr context);
+void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int *ncomp, instance *inst, CPXCALLBACKCONTEXTptr context);
 void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar, instance *inst);
 
 
