@@ -76,7 +76,7 @@ int TSPopt2(instance *inst)
 		double ub = INFINITY; // generate a solution with an heuristic and calculate the cost;
 		inst->succ = (int*)malloc(inst->nnodes * sizeof(int));
 		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
-		int giro = 0;
+		//int giro = 0;
 		do{
 			// Set time limit for cplex execution
 			CPXsetdblparam(env, CPX_PARAM_TILIM, (inst->timelimit - (second()-inst->t_start)));
@@ -127,7 +127,7 @@ int TSPopt2(instance *inst)
 			int* comp = (int*)malloc(inst->nnodes * sizeof(int)); // array with component numbers for each node
 			int ncomp;											  //number of separate subtours
 			build_sol(xstar, inst, succ, comp, &ncomp);
-			printf("builded a solution with %d components\n", ncomp);
+			//printf("builded a solution with %d components\n", ncomp);
 
 			if(ncomp > 1){
 				updateModel(inst, env, lp, ncomp, comp);
@@ -158,9 +158,9 @@ int TSPopt2(instance *inst)
 			free(succ);
 			free(comp);
 			//printf("Ellapsed time: %f\n", (second() - inst->t_start));
-			giro++;
+			//giro++;
 		}while((lb < (1-XSMALL)*ub) && ((second() - inst->t_start) < inst->timelimit));
-		printf("ho fatto in tutto %d giri\n", giro);
+		//printf("ho fatto in tutto %d giri\n", giro);
 
 	}else if(strncmp(inst->method, "Callback", 8) == 0){									// Callback
 		int ncols = inst->ncols;
@@ -215,8 +215,8 @@ int TSPopt2(instance *inst)
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
 		double best_cost = INFINITY;
 		ncols = CPXgetnumcols(env, lp);
-		printf("ncols is %d\n", ncols);
-		printf("nnodes is %d\n", inst->nnodes);
+		//printf("ncols is %d\n", ncols);
+		//printf("nnodes is %d\n", inst->nnodes);
 		int* succ = (int*)malloc(inst->nnodes * sizeof(int));		// array with successors
 		int* comp = (int*)malloc(inst->nnodes * sizeof(int));		// array with component numbers for each node
 		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
@@ -233,10 +233,10 @@ int TSPopt2(instance *inst)
 		int beg = 0;
 		double prob = inst->p;
 		CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst);
-		int index = 0;
+		//int index = 0;
+		if (CPXaddmipstarts(env, lp, 1, ncols, &beg, ind, xheu, &effortlevel, NULL)) print_error("CPXaddmipstarts() error");	//shifted from inside the loop
 		do{
-			printf("giro numero %d\n", index);
-			if (CPXaddmipstarts(env, lp, 1, ncols, &beg, ind, xheu, &effortlevel, NULL)) print_error("CPXaddmipstarts() error");
+			//printf("giro numero %d\n", index);
 			freeAllLowerBound(env, lp, inst);
 			for(int k=0; k<inst->nnodes; k++){
 				if(random01() < prob && xheu[k] > 0.5){
@@ -265,7 +265,7 @@ int TSPopt2(instance *inst)
 			}
 			}
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
-			index++;
+			//index++;
 		}while ((second()-inst->t_start) < inst->timelimit);
 		inst->best_sol = &best_cost;
 		free(xheu);
@@ -297,6 +297,7 @@ int TSPopt2(instance *inst)
 		int effortlevel = CPX_MIPSTART_NOCHECK;
 		int beg = 0;
 
+		if (CPXaddmipstarts(env, lp, 1, ncols, &beg, ind, xh, &effortlevel, NULL)) print_error("CPXaddmipstarts() error");
 		// Add this starting solution to the model
 		localBranchingAddRow(env, lp, xh, k, inst);
 
@@ -305,6 +306,7 @@ int TSPopt2(instance *inst)
 		// Set callback function
 		if(CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst)) print_error("CPXcallbacksetfunc() error");
 		double best_cost = INFINITY;
+		
 
 		do{
 			double remaining_time = step_time;
@@ -314,9 +316,6 @@ int TSPopt2(instance *inst)
 			}
 			CPXsetdblparam(env, CPXPARAM_TimeLimit, remaining_time);
 			printf("cplex max time for this iteration: %f\n", remaining_time);
-
-			if (CPXaddmipstarts(env, lp, 1, ncols, &beg, ind, xh, &effortlevel, NULL)) print_error("CPXaddmipstarts() error");
-
 
 			error = CPXmipopt(env,lp);
 			if(error){
@@ -576,13 +575,13 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 		// Patching heuristic
 		if(inst->patch){
 			free(comp);
-			printf("ncomp is %d\n", ncomp);
+			//printf("ncomp is %d\n", ncomp);
 			calculateComponents(&a, &comp, &ncomp, xstar, inst);
 			//printf("ATTENZIONE\n");
 			patchingHeuristicUpdate(NULL, NULL, a, comp, inst->nnodes, &ncomp, inst, context);
-			print_succ(a, inst->nnodes);
-			print_comp(comp, inst->nnodes);
-			printf("ncomp is %d\n", ncomp);
+			//print_succ(a, inst->nnodes);
+			//print_comp(comp, inst->nnodes);
+			//printf("ncomp is %d\n", ncomp);
 		}
 	}
 
@@ -590,7 +589,7 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	incumbent = CPX_INFBOUND;
 	CPXcallbackgetinfodbl(context, CPXCALLBACKINFO_BEST_SOL, &incumbent);
 	//Post the solution to CPLEX if with no subtours
-	if(inst->post && objheu<0.99*incumbent){
+	if(inst->post && ncomp==1 && objheu<0.99*incumbent){
 		double* xheu = (double*)malloc(inst->ncols * sizeof(double));
 		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
 		for (int i = 0; i < inst->ncols; i++) xheu[i] = 0.0;							//initialize xheu to all zeros
@@ -729,9 +728,9 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 						//printf("nnodes:%d, prev:%d, next:%d\n", inst->nnodes, prev, next);
 						if(added == 0)
 						{
-							printf("sto cercando un nodo adiacente a %d\n", next);
+							/*printf("sto cercando un nodo adiacente a %d\n", next);
 							print_succ(*succ, inst->nnodes);
-							print_comp(*comp, inst->nnodes);
+							print_comp(*comp, inst->nnodes);*/
 							print_error(" error in the transformation");
 						}
 					}
@@ -856,16 +855,16 @@ void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, i
 		comp[next] = comp[a];
 		*ncomp = *ncomp-1;
 		//printf(":%d\n", comp[next]);
-		print_succ(succ, inst->nnodes);
-		print_comp(comp, inst->nnodes);
-		printf("ncomp now is: %d\n",*ncomp);
+		//print_succ(succ, inst->nnodes);
+		//print_comp(comp, inst->nnodes);
+		//printf("ncomp now is: %d\n",*ncomp);
 		if(k>=(oldcomp-2)) continue;
 		/*for(int i = 0; i < inst->nnodes; i++)
 		{
 			printf("%d\n",comp[a]);
 		}*/
 		// Add SEC's
-		printf("adding a SEC\n");
+		//printf("adding a SEC\n");
 		addOneCompSec(env, lp, comp, comp[a], context, inst);
 	}
 }
