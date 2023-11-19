@@ -310,7 +310,6 @@ int TSPopt2(instance *inst)
 
 		do{
 			double remaining_time = step_time;
-
 			if((inst->timelimit - (second()-inst->t_start))<step_time){
 				remaining_time = (inst->timelimit - (second()-inst->t_start));
 			}
@@ -324,33 +323,16 @@ int TSPopt2(instance *inst)
 			}
 			int current_cost;
 			if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");
-			else {
-				build_sol(xh, inst, succ, comp, &ncomp);
-				current_cost = calculate_succ_cost(succ, inst);
-				if(best_cost < current_cost){
-				print_error(" error in local branching, prev_cost can't be lower than the new one");
-				}
-				else if (current_cost < best_cost) {
-					best_cost = current_cost;
-					for (int i = 0; i < inst->nnodes; i++){
-						inst->succ[i] = succ[i];
-						inst->comp[i] = comp[i];
-					}
-				}
-				else{
-					k = 2*k;
-					if(k > (inst->nnodes-1)) k = inst->nnodes-1;
-				}
-			}//else
-			int numrows = CPXgetnumrows(env, lp);
-			if (CPXdelrows(env, lp, numrows - 1, numrows - 1)) print_error("CPXdelrows(): error 1");
-
-			//printf("Attenzione!\n");
-			print_succ(succ, inst->nnodes);
-			print_comp(comp, inst->nnodes);
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
-
-			best_cost = current_cost;
+			if(best_cost < calculate_succ_cost(inst->succ, inst)){
+				print_error(" error in local branching, prev_cost can't be lower than the new one");
+			}
+			if(best_cost == calculate_succ_cost(inst->succ, inst)){
+				k = 2*k;
+				if(k > (inst->nnodes-1)) k = inst->nnodes-1;
+			}
+			best_cost = calculate_succ_cost(inst->succ, inst);
+        	printf("CPLEX Total cost: %lf\n", best_cost);
 
 			// Delete last row containing local branching constraint
 			int nrows = CPXgetnumrows(env, lp);
@@ -728,8 +710,8 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
 						//printf("nnodes:%d, prev:%d, next:%d\n", inst->nnodes, prev, next);
 						if(added == 0)
 						{
-							/*printf("sto cercando un nodo adiacente a %d\n", next);
-							print_succ(*succ, inst->nnodes);
+							printf("sto cercando un nodo adiacente a %d\n", next);
+							/*print_succ(*succ, inst->nnodes);
 							print_comp(*comp, inst->nnodes);*/
 							print_error(" error in the transformation");
 						}
