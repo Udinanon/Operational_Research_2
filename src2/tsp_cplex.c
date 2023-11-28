@@ -73,7 +73,7 @@ int TSPopt2(instance *inst)
 		}while(inst->ncomp > 1);
 	}else if(strncmp(inst->method, "Benders", 7) == 0){									// Benders' Loop method with time limit and patching heuristic
 		double lb = 0;
-		double ub = INFINITY; // generate a solution with an heuristic and calculate the cost;
+		double ub = INFINITY;
 		inst->succ = (int*)malloc(inst->nnodes * sizeof(int));
 		inst->comp = (int*)malloc(inst->nnodes * sizeof(int));
 		//int giro = 0;
@@ -274,7 +274,7 @@ int TSPopt2(instance *inst)
 		free(comp);
 	}else if(strncmp(inst->method, "Local", 5) == 0){									// Local Branching
 		// Hyperparameter to set
-		int k = 30;
+		int k = 20;
 		xstar = (double*)calloc(ncols, sizeof(double));
 		// Find a starting solution with an heuristic:
 		greedy(&inst->succ, 1, 1, 0, inst);
@@ -328,8 +328,8 @@ int TSPopt2(instance *inst)
 				print_error(" error in local branching, prev_cost can't be lower than the new one");
 			}
 			if(best_cost == calculate_succ_cost(inst->succ, inst)){
-				k = 2*k;
-				if(k > (inst->nnodes-1)) k = inst->nnodes-1;
+				k = k + 10;
+				if(k > (inst->nnodes-1)/2) k = (inst->nnodes-1)/2;
 			}
 			best_cost = calculate_succ_cost(inst->succ, inst);
         	printf("CPLEX Total cost: %lf\n", best_cost);
@@ -774,13 +774,8 @@ void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *in
 
 // Slide 07; 22-Apr-2022
 void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int *ncomp, instance *inst, CPXCALLBACKCONTEXTptr context){
-	printf("ncomp now is: %d\n",*ncomp);
+	//printf("ncomp now is: %d\n",*ncomp);
 	int oldcomp = *ncomp;
-	for (int i = 0; i < inst->nnodes; i++){
-			if (( comp)[i] != (comp)[(succ)[i]])
-				printf("ATTENTION: node %d is in comp %d, its successor is %d which is in comp %d\n", i, ( comp)[i], (succ)[i], (comp)[(succ)[i]]);
-
-		}
 	for(int k=0; k<oldcomp-1; k++){
 		int a, next_a;
 		int b, next_b;
