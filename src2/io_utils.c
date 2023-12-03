@@ -186,30 +186,10 @@ void plot_best_sol(instance *inst){
     }
 	fclose(ff);
 	fclose(f);
-
-	system("gnuplot ../plot/settings_bs2.txt");
-}
-
-
-/**
-void plot_best_sol_old(instance *inst){
-	FILE *fout = fopen("../plot/bs.dat", "w");
-	if(fout == NULL) print_error(" can't write to output file");
-
-	int prev = 0;
-	int end = 0;
-	fprintf(fout, "%lf %lf\r\n", inst->xcoord[prev], inst->ycoord[prev]);
-	while(!end){
-		prev = inst->succ[prev];
-		//printf("Writing node: %d\n", prev);
-		fprintf(fout, "%lf %lf\r\n", inst->xcoord[prev], inst->ycoord[prev]);
-		if(prev == 0) end = 1;
+	if(CSVOUT !=1){
+		system("gnuplot ../plot/settings_bs2.txt");
 	}
-	fclose(fout);
-
-	system("gnuplot ../plot/settings_bs.txt");
-}*/
-
+}
 
 void plot_points(instance *inst){
 	FILE *fout = fopen("../plot/data.dat", "w");
@@ -219,7 +199,7 @@ void plot_points(instance *inst){
 		fprintf(fout, "%lf %lf\r\n", inst->xcoord[i], inst->ycoord[i]);
 	}
 	fclose(fout);
-
+	
 	system("gnuplot ../plot/settings.txt");
 }
 

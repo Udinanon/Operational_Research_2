@@ -122,7 +122,7 @@ def main():
 		else:
 			plt.plot(ratio[:, j], y, **options)
 	plt.axis([1, opt.maxratio, 0, 1])
-	#plt.legend(loc='lower right')
+	plt.legend(loc='lower right')
 	if opt.plottitle is not None:
 		plt.title(opt.plottitle)
 	plt.xlabel(opt.xlabel)

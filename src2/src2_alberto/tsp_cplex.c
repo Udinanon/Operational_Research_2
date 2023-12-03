@@ -20,6 +20,7 @@ int TSPopt2(instance *inst)
 /**************************************************************************************************************************/
 {  
 
+	
 	// open CPLEX model
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);

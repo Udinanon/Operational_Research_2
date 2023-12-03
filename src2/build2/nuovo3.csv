@@ -1,0 +1,111 @@
+Cplex_Benders,_0,
+CPLEX Total cost: 16569.950426
+Cplex_Benders,_1,
+CPLEX Total cost: 16458.198469
+Cplex_Benders,_2,
+CPLEX Total cost: 16870.284652
+Cplex_Benders,_3,
+CPLEX Total cost: 16603.675992
+Cplex_Benders,_4,
+CPLEX Total cost: 16330.382205
+Cplex_Benders,_5,
+CPLEX Total cost: 16707.783368
+Cplex_Benders,_6,
+CPLEX Total cost: 16649.861511
+Cplex_Benders,_7,
+CPLEX Total cost: 16431.451735
+Cplex_Benders,_8,
+CPLEX Total cost: 16419.557826
+Cplex_Benders,_9,
+CPLEX Total cost: 16454.864045
+Cplex_Callback,_0,
+CSVOUT_nodes500_seed0;19764.799825;
+CPLEX Total cost: 16569.950426
+Cplex_Callback,_1,
+CSVOUT_nodes500_seed1;19817.088623;
+CPLEX Total cost: 16458.198469
+Cplex_Callback,_2,
+CSVOUT_nodes500_seed2;20028.847658;
+CPLEX Total cost: 16870.284652
+Cplex_Callback,_3,
+CSVOUT_nodes500_seed3;20047.618796;
+CPLEX Total cost: 16603.675992
+Cplex_Callback,_4,
+CSVOUT_nodes500_seed4;19043.177484;
+CPLEX Total cost: 16330.382205
+Cplex_Callback,_5,
+CSVOUT_nodes500_seed5;19276.543426;
+CPLEX Total cost: 16707.783368
+Cplex_Callback,_6,
+CSVOUT_nodes500_seed6;19646.544649;
+CPLEX Total cost: 16649.861511
+Cplex_Callback,_7,
+CSVOUT_nodes500_seed7;18976.060630;
+CPLEX Total cost: 16431.451735
+Cplex_Callback,_8,
+CSVOUT_nodes500_seed8;20078.635629;
+CPLEX Total cost: 16419.557826
+Cplex_Callback,_9,
+CSVOUT_nodes500_seed9;19729.163015;
+CPLEX Total cost: 16454.864045
+Cplex_Hard,_0,
+CSVOUT_nodes500_seed0;19764.799825;
+CPLEX Total cost: 16569.950426
+Cplex_Hard,_1,
+CSVOUT_nodes500_seed1;19817.088623;
+CPLEX Total cost: 16458.198469
+Cplex_Hard,_2,
+CSVOUT_nodes500_seed2;20028.847658;
+CPLEX Total cost: 16870.284652
+Cplex_Hard,_3,
+CSVOUT_nodes500_seed3;20047.618796;
+CPLEX Total cost: 16603.675992
+Cplex_Hard,_4,
+CSVOUT_nodes500_seed4;19043.177484;
+CPLEX Total cost: 16330.382205
+Cplex_Hard,_5,
+CSVOUT_nodes500_seed5;19276.543426;
+CPLEX Total cost: 16707.783368
+Cplex_Hard,_6,
+CSVOUT_nodes500_seed6;19646.544649;
+CPLEX Total cost: 16649.861511
+Cplex_Hard,_7,
+CSVOUT_nodes500_seed7;18976.060630;
+CPLEX Total cost: 16431.451735
+Cplex_Hard,_8,
+CSVOUT_nodes500_seed8;20078.635629;
+CPLEX Total cost: 16419.557826
+Cplex_Hard,_9,
+CSVOUT_nodes500_seed9;19729.163015;
+CPLEX Total cost: 16454.864045
+Cplex_Local_0,
+CSVOUT_nodes500_seed0;20921.398695;
+CPLEX Total cost: 16580.106530
+Cplex_Local_1,
+CSVOUT_nodes500_seed1;20785.986631;
+CPLEX Total cost: 16458.198469
+Cplex_Local_2,
+CSVOUT_nodes500_seed2;20804.998733;
+CPLEX Total cost: 16870.284652
+Cplex_Local_3,
+CSVOUT_nodes500_seed3;20168.452333;
+CPLEX Total cost: 16603.675992
+Cplex_Local_4,
+CSVOUT_nodes500_seed4;19967.718880;
+CPLEX Total cost: 16419.145248
+Cplex_Local_5,
+CSVOUT_nodes500_seed5;21183.695947;
+CPLEX Total cost: 16707.783368
+Cplex_Local_6,
+CSVOUT_nodes500_seed6;21739.696130;
+CPLEX Total cost: 16649.861511
+Cplex_Local_7,
+CSVOUT_nodes500_seed7;21040.068927;
+CPLEX Total cost: 16431.451735
+Cplex_Local_8,
+CSVOUT_nodes500_seed8;20311.999916;
+CPLEX Total cost: 16419.557826
+Cplex_Local_9,
+CSVOUT_nodes500_seed9;20888.500239;
+CPLEX Total cost: 16491.925420
+END

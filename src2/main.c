@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 		read_input(&inst);
 	}else if(inst.nrand != 0){
 		snprintf(inst.input_file, sizeof(inst.input_file), "%d", inst.randomseed);
-		printf("%s\n", inst.input_file);
+		//printf("%s\n", inst.input_file);
 		generate_random_points(&inst.xcoord, &inst.ycoord, inst.nrand, inst.randomseed, 1000, 1000);
 		inst.nnodes = inst.nrand;
 	}
@@ -38,7 +38,9 @@ int main(int argc, char **argv)
 	{
 		printf("... TSP problem solved in %lf sec.s\n", t2-t1);  
 	}
-	
+	if(CSVOUT == 1){
+        printf("CPLEX Total cost: %lf\n", calculate_succ_cost(inst.succ, &inst));
+    }
 	delete_instance(&inst);
 	return 0; 
 }
