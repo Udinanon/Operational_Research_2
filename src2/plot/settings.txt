@@ -1,0 +1,5 @@
+set style line 1 \
+	lc rgb 'red' \
+	pt 7 
+plot "../plot/data.dat" with points linestyle 1
+pause mouse close

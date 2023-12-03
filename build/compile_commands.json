@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/tsp_cplex.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_cplex.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_cplex.c",
+  "output": "CMakeFiles/tsp.dir/tsp_cplex.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/tsp_meta.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_meta.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_meta.c",
+  "output": "CMakeFiles/tsp.dir/tsp_meta.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/tsp_generative.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_generative.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp_generative.c",
+  "output": "CMakeFiles/tsp.dir/tsp_generative.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/tsp.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/tsp.c",
+  "output": "CMakeFiles/tsp.dir/tsp.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/utils.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/utils.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/utils.c",
+  "output": "CMakeFiles/tsp.dir/utils.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/io_utils.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/io_utils.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/io_utils.c",
+  "output": "CMakeFiles/tsp.dir/io_utils.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/chrono.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/chrono.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/chrono.c",
+  "output": "CMakeFiles/tsp.dir/chrono.c.o"
+},
+{
+  "directory": "/home/lorenzo/Op2 with Martino/Operational_Research_2/build",
+  "command": "/usr/bin/cc  -I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex -I\"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include/ilcplex\" -I/home/lorenzo/concorde -g -o CMakeFiles/tsp.dir/main.c.o -c \"/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/main.c\"",
+  "file": "/home/lorenzo/Op2 with Martino/Operational_Research_2/src2/main.c",
+  "output": "CMakeFiles/tsp.dir/main.c.o"
+}
+]

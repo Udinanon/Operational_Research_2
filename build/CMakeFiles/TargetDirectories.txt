@@ -1,0 +1,3 @@
+/home/lorenzo/Op2 with Martino/Operational_Research_2/build/CMakeFiles/tsp.dir
+/home/lorenzo/Op2 with Martino/Operational_Research_2/build/CMakeFiles/edit_cache.dir
+/home/lorenzo/Op2 with Martino/Operational_Research_2/build/CMakeFiles/rebuild_cache.dir

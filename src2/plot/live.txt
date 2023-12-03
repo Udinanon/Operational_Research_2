@@ -1,0 +1,4 @@
+while(1) {\
+	replot
+	pause 0.5
+}

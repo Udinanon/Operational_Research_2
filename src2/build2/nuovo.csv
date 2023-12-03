@@ -1,0 +1,27 @@
+Cplex_Benders_0,
+CPLEX Total cost: 10657.498893
+Cplex_Benders_1,
+CPLEX Total cost: 10877.392691
+Cplex_Benders_2,
+CPLEX Total cost: 11014.801204
+Cplex_Benders_3,
+
+
+ ERROR: CPXgetx() error 
+
+Cplex_Benders_4,
+CPLEX Total cost: 10882.799479
+Cplex_Benders_5,
+
+
+ ERROR: CPXgetx() error 
+
+Cplex_Benders_6,
+CPLEX Total cost: 10553.182046
+Cplex_Benders_7,
+CPLEX Total cost: 10798.120975
+Cplex_Benders_8,
+CPLEX Total cost: 11100.641889
+Cplex_Benders_9,
+CPLEX Total cost: 10577.771983
+END
