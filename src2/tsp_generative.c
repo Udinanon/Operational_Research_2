@@ -1,95 +1,5 @@
 #include "tsp.h"
 
-
-
-/*
-int extra_mileage_old(instance *inst){
-
-    int *unc_nodes = (int *) calloc(inst->nnodes, sizeof(int));
-    int *succ = (int *) calloc(inst->nnodes, sizeof(int));
-    inst->best_sol = (double *) calloc(inst->nnodes, sizeof(double));
-
-    //Choose 2 starting points (max cost)
-    double max_cost = 0;
-    int temp_i, temp_j, temp_k;
-    for(int i=0; i<inst->nnodes; i++){
-        for(int j=0; j<i; j++){
-            if(cost(i,j,inst) > max_cost){
-                max_cost = cost(i,j,inst);
-                temp_i = i;
-                temp_j = j;
-            }
-        }
-    }
-    if(VERBOSE >= 100) printf("Max_cost: %f", max_cost);
-
-    //Add chosen points to successors and set other values to -1
-    for(int i=0; i<inst->nnodes; i++) succ[i] = -1;
-    succ[temp_i] = temp_j;
-    succ[temp_j] = temp_i;
-    inst->best_sol[temp_i] = cost(temp_i, succ[temp_i], inst);
-    inst->best_sol[temp_j] = cost(temp_j, succ[temp_j], inst);
-
-    //Remove chosen points from uncovered nodes
-    int len_unc_nodes = inst->nnodes - 2;
-    for(int i=0; i<inst->nnodes; i++){
-        unc_nodes[i] = i;
-    }
-    unc_nodes[temp_i] = unc_nodes[inst->nnodes-1];
-    unc_nodes[temp_j] = unc_nodes[inst->nnodes-2];
-
-    double delta, temp_delta;
-    int end = 0;
-    while(!end){
-        delta = INFINITY;
-        //for each connection in succ (i,succ[i])
-        for(int i=0; i<inst->nnodes; i++){
-            if(succ[i] >= 0){
-                //for each uncovered node (unc_nodes[j])
-                for(int j=0; j<len_unc_nodes; j++){
-                    //calculates delta
-                    temp_delta = cost(i,unc_nodes[j],inst) + cost(unc_nodes[j],succ[i], inst) - cost(i,succ[i], inst);
-                    if(temp_delta < delta){
-                        delta = temp_delta;
-                        temp_i = i;
-                        temp_j = j;
-                        temp_k = succ[i];
-                    }
-                }
-            }
-        }
-        succ[temp_i] = unc_nodes[temp_j];
-        succ[unc_nodes[temp_j]] = temp_k;
-        inst->best_sol[temp_i] = cost(temp_i, succ[temp_i], inst);
-        inst->best_sol[unc_nodes[temp_j]] = cost(unc_nodes[temp_j], succ[unc_nodes[temp_j]], inst);
-
-        if(VERBOSE >= 90) printf("Adding node %d to succ with delta cost: %lf\n", unc_nodes[temp_j], delta);
-
-        unc_nodes[temp_j] = unc_nodes[len_unc_nodes-1];
-
-        len_unc_nodes --;
-        if(len_unc_nodes==0){
-            end = 1;
-        }
-    }
-    
-    //if(VERBOSE >= 70) printf("Len_unc_nodes = %d\n---------------------\n", len_unc_nodes);
-    inst->succ = succ;
-    if(VERBOSE >= 40){
-        printf("Best solution found with EXTRA-MILEAGE algorithm:\n");
-        for(int i=0; i<inst->nnodes; i++) printf("|%d=%d| ",i, (inst->succ)[i]);
-        printf("\n");
-    }
-    if(VERBOSE >= 30){
-        printf("EXTRA-MILEAGE Total cost: %lf\n", calculate_succ_cost(inst->succ, inst));
-    }
-
-    free(unc_nodes);
-    free(succ);
-    return 0;
-}
-*/
-
 int extra_mileage(int **out_succ, double p, int len_rcl, double t_limit, instance *inst){
 
 
@@ -159,7 +69,6 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                 //for each connection in succ (i,succ[i])
                 for(int i=0; i<inst->nnodes; i++){
                     if(succ[i] < 0) continue;
-                    //if(succ[i] >= 0){
                         //for each uncovered node    len(unc_nodes[])
                     for(int j=0; j<len_unc_nodes; j++){
                         // skip already visited nodes for RCL.
@@ -173,10 +82,8 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                             temp_k = succ[i];
                         }
                     }
-                    //}
                 }
                 // Add node with lowest cost to the list
-                //printf("Adding node with delta cost: %f\n", delta);
                 unc_nodes_rcl[temp_j] = 1;
                 rcl_prev[k] = temp_i;
                 rcl[k] = temp_j;
@@ -190,8 +97,6 @@ int extra_mileage_compute(int *path, int **out_succ, int len_path, double p, int
                 if(end_rcl >= 2){
                     if(random01() > p){
                         n = round(random01() * (end_rcl-2)) + 1;
-                        // printf("[max %3d] RCL idx: %d, with cost: %f\n", end_rcl, n, cost(rcl_prev[n], unc_nodes[rcl[n]], inst) + cost(succ[rcl_prev[n]], unc_nodes[rcl[n]], inst) 
-                        // - cost(rcl_prev[n], succ[rcl_prev[n]], inst));
                     }
                 }
                 
@@ -367,10 +272,3 @@ int generate_random_path(int **out_path, instance *inst){
     free(unc_nodes);
     return 0;
 }
-
-
-
-
-
-
-

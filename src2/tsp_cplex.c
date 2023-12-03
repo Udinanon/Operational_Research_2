@@ -10,7 +10,6 @@ void freeLowerBound(CPXENVptr env, CPXLPptr lp, int min_k, int max_k, instance *
 void freeAllLowerBound(CPXENVptr env, CPXLPptr lp, instance *inst);
 void updateModel(instance *inst, CPXENVptr env, CPXLPptr lp, int ncomp, int* comp);
 void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int *ncomp, instance *inst, CPXCALLBACKCONTEXTptr);
-void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst);
 int xpos(int i, int j, instance *inst);
 void build_sol(const double *xstar, instance *inst, int *succ, int *comp, int *ncomp);
 int TSPopt2(instance *inst);	//he expects a singular function with different number of parameters for Benders: one without vns, one with vns, ecc.
@@ -156,13 +155,13 @@ int TSPopt2(instance *inst)
 		
 		extra_mileage(&inst->succ, 1, 1, 0, inst);
 		
-		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
+		//Converting a TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
 		double* xheu = (double*)calloc(ncols, sizeof(double));
 		for (int i = 0; i < ncols; i++) xheu[i] = 0;								//initialize xheu to all zeros
 		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, inst->succ[i], inst)] = 1;	//set solution edges to one
 		int* ind = (int*)calloc(ncols, sizeof(int));
 		for (int i = 0; i < ncols; i++) ind[i] = i; //indices
-		int effortlevel = CPX_MIPSTART_NOCHECK; //cplex doesn't check if the incumbent solution is feasible
+		int effortlevel = CPX_MIPSTART_NOCHECK;
 		int beg = 0;
 
 		//provide to cplex an incumbent solution
@@ -203,7 +202,7 @@ int TSPopt2(instance *inst)
 		}
 		int* ind = (int*)calloc(ncols, sizeof(int));
 		for (int i = 0; i < ncols; i++) ind[i] = i;
-		int effortlevel = CPX_MIPSTART_NOCHECK; //cplex doesn't check the incumbent solution
+		int effortlevel = CPX_MIPSTART_NOCHECK;
 		int beg = 0;
 		double prob = inst->p;
 		CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_CANDIDATE, my_callback, inst);
@@ -296,7 +295,6 @@ int TSPopt2(instance *inst)
 				printf("CPX error code %d\n", error);
 				print_error("CPXmipopt() error");
 			}
-			int current_cost;
 			if ( CPXgetx(env, lp, xstar, 0, ncols-1) ) print_error("CPXgetx() error");
 			calculateComponents(&inst->succ, &inst->comp, &inst->ncomp, xstar, inst);
 			if(best_cost < calculate_succ_cost(inst->succ, inst)){
@@ -464,7 +462,6 @@ void fixLowerBound(CPXENVptr env, CPXLPptr lp, int k, int succ_k, instance *inst
 	int idx = xpos(min, max, inst);
 	double lb = 1.0;
 	if ( CPXchgbds(env, lp, 1, &idx, &lu, &lb) ) print_error(" wrong CPXnewcols on x var.s");
-	//if ( CPXgetnumcols(env,lp)-1 != xpos(min,max, inst) ) print_error(" wrong position for x var.s");
 
 }
 
@@ -501,13 +498,9 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	int mythread = -1; CPXcallbackgetinfoint(context, CPXCALLBACKINFO_THREADID, &mythread); 
 	int mynode = -1; CPXcallbackgetinfoint(context, CPXCALLBACKINFO_NODECOUNT, &mynode); 
 	double incumbent = CPX_INFBOUND; CPXcallbackgetinfodbl(context, CPXCALLBACKINFO_BEST_SOL, &incumbent); 
-	
-	//...
 
 	int nnz = 0; 
-	//... if xstart is infeasible, find a violated cut and store it in the usual Cplex's data structute (rhs, sense, nnz, index and value)
 	int ncomp = 10;
-
 	int* comp; // array with component numbers for each node
 	int *a;
 	
@@ -529,9 +522,11 @@ static int CPXPUBLIC my_callback(CPXCALLBACKCONTEXTptr context, CPXLONG contexti
 	double objheu = calculate_succ_cost(a, inst);
 	incumbent = CPX_INFBOUND;
 	CPXcallbackgetinfodbl(context, CPXCALLBACKINFO_BEST_SOL, &incumbent);
+
 	//Post the solution to CPLEX if with no subtours
 	if(inst->post && ncomp==1 && objheu<(1-XSMALL)*incumbent){
 		double* xheu = (double*)malloc(inst->ncols * sizeof(double));
+
 		//Converting a "successor" TSP solution succ[0..nnodes-1] to a CPLEX solution xheu[0..ncols-1]
 		for (int i = 0; i < inst->ncols; i++) xheu[i] = 0.0;							//initialize xheu to all zeros
 		for (int i = 0; i < inst->nnodes; i++) xheu[xpos(i, a[i], inst)] = 1.0;	//set solution edges to one
@@ -631,50 +626,6 @@ void calculateComponents(int **succ, int **comp, int *ncomp, const double *xstar
     }
 	*ncomp = num_comp+1;
 }
-
-// Slide 07; 22-Apr-2022
-void patchingHeuristic(int *succ, int *comp, int nnodes, int ncomp, instance *inst){
-	for(int k=0; k<ncomp-1; k++){
-		int a, next_a;
-		int b, next_b;
-		double delta = INFINITY;
-		// For each node i check for another node j with different comp s.t. delta is the minimum possible
-		for(int i=0; i<nnodes; i++){
-			for(int j=0; j<nnodes; j++){
-				if(comp[i] >= comp[j]) continue; // if i == j they have the same comp[].
-				if(succ[i] == j) continue;
-				if(succ[j] == i) continue;
-				double temp_delta = (cost(i, succ[j], inst) + cost(j, succ[i], inst))-(cost(i, succ[i], inst) + cost(j, succ[j], inst));//new_solution - old_solution
-				if(temp_delta<delta){
-					a = i;
-					next_a = succ[i];
-					b = j;
-					next_b = succ[j];
-					delta = temp_delta;
-				}
-			}
-		}
-		// Merge 2 components and keep the minimum which is on 'a' since "if(comp[i] >= comp[j]) continue;" -> comp[a] < comp[b]
-		succ[a] = next_b;
-		succ[b] = next_a;
-		// From next_b to b change comp[]
-		int prev = next_b;
-		int next = succ[prev];
-		comp[prev] = comp[a];
-		int counter = 0;
-		while(succ[prev] != b){
-			comp[next] = comp[a];
-			prev = next;
-			next = succ[next];
-			if(counter >= inst->nnodes){
-				print_error(" loop on patchingHeuristic not working");
-			}
-			counter ++;
-		}
-		comp[next] = comp[a];
-	}
-}
-
 
 // Slide 07; 22-Apr-2022
 void patchingHeuristicUpdate(CPXENVptr env, CPXLPptr lp, int *succ, int *comp, int nnodes, int *ncomp, instance *inst, CPXCALLBACKCONTEXTptr context){

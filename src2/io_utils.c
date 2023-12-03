@@ -147,16 +147,6 @@ void plot_best_sol(instance *inst){
 			}
 			else{
 				print_error("Found inner cycle, not feasible solution!");
-				/*if(len_unv_nodes==0 && prev != 0)
-				{
-					prev = 0;
-				}
-				else{
-					prev = -1;
-					for(int i=0; (i<inst->nnodes) && (prev == -1); i++){
-						if(unv_nodes[i] == 0) prev = i;
-					}
-				}*/
 			}
 			fprintf(fout, "%lf %lf 1\r\n", inst->xcoord[prev], inst->ycoord[prev]);
 			succ = inst->succ[prev];

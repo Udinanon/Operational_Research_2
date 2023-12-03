@@ -40,7 +40,6 @@ int TSPopt(instance *inst){
     }
     else if(strncmp(inst->model_type, "Extra-Mileage", 13) == 0){  //extra mileage
         int path[] = {50, 0};
-        //extra_mileage_compute(path, &inst->succ, 2, inst->p, inst->len_rcl, inst->timelimit, inst);
         if(inst->timelimit == INFINITY){
             extra_mileage(&inst->succ, 1, 1, 0, inst);
         }else{
@@ -460,8 +459,6 @@ int simulated_annealing(instance *inst)
                 prev = temp;
                 temp = temp_next;
                 temp_next = inst->succ[temp];
-                // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
-                // printf("temp_j: %d\n", temp_j);
             }
             inst->succ[temp] = prev;
         }
@@ -483,8 +480,6 @@ int simulated_annealing(instance *inst)
                     prev = temp;
                     temp = temp_next;
                     temp_next = inst->succ[temp];
-                    // printf("prev: %d, temp: %d, temp_next: %d\n", prev, temp, temp_next);
-                    // printf("temp_j: %d\n", temp_j);
                 }
                 inst->succ[temp] = prev;
             }
@@ -561,8 +556,6 @@ int genetic(instance *inst){
             parent2[i] = unc_population[n];
             unc_population[n] = unc_population[--len_unc_population];
         }
-        //print_path(parent1, (int) inst->population/2);
-        //print_path(parent2, (int) inst->population/2);
 
         //generate new instances:
         for(int i=0; i<((int) inst->population/2); i++){
@@ -628,7 +621,7 @@ int genetic(instance *inst){
         }
         
         // update new population
-        int n_remove = len_new_population; //(int) inst->population/2;
+        int n_remove = len_new_population;
         int c = 0;
         for(int i=0; i<inst->population; i++){
             if(i == best_instance) continue;          //do not update the best instance of the previous iteration
